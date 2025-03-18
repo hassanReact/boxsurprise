@@ -11,9 +11,6 @@ function UserSignUp() {
     password: '',
     confirmPassword: '',
     referralId: '',
-    sponsorId: '',
-    position: 'left',
-    accountType: 'basic'
   });
 
   const handleSubmit = (e: React.FormEvent) => {
