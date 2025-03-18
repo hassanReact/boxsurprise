@@ -1,14 +1,9 @@
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
+// import Navbar from "./components/Navbar";
 
 export default function App() {
   return (
     <div className="flex w-full h-full justify-center items-center">
-      <SignedOut>
-        <SignInButton />
-      </SignedOut>
-      <SignedIn>
-        <UserButton />
-      </SignedIn>
+      {/* <Navbar/> */}
     </div>
   );
 }

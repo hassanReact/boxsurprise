@@ -8,9 +8,9 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # Dependency directories
-node_modules/
-dist/
-dist-ssr/
+node_modules
+dist
+dist-ssr
 
 # Local environment files
 .env
@@ -33,9 +33,9 @@ pids
 *.seed
 
 # Editor directories and files
-.vscode/
+.vscode
 !.vscode/extensions.json
-.idea/
+.idea
 .DS_Store
 *.suo
 *.ntvs*
@@ -44,24 +44,24 @@ pids
 *.sw?
 
 # Debug and testing
-coverage/
-nyc_output/
-jest/
-test-results/
-cypress/screenshots/
-cypress/videos/
+coverage
+nyc_output
+jest
+test-results
+cypressscreenshots
+cypressvideos
 
 # Logs and crash reports
 *.log
-logs/
+logs
 *.gz
 *.out
 
 # Build artifacts
-build/
-.cache/
-.next/
-out/
+build
+.cache
+.next
+out
 
 # Misc
 npm-debug.log*

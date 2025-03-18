@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+    image:{
+      type: String,
+      required: false 
+    },
     referralCode: {
       type: String,
       unique: true,
