@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  // Handle scroll effect for navbar
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
@@ -20,13 +19,13 @@ const Navbar = () => {
   }, []);
 
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}>
+    <header className={`header ${scrolled ? 'bg-white shadow-md' : 'bg-transparent'} fixed w-full z-50 transition-all duration-300`}>
       <div className="container mx-auto px-4">
         <nav className="flex justify-between items-center py-4">
           {/* Logo */}
           <div className="logo">
             <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold text-blue-600">MLM Lab</span>
+              <img src="/logo.png" alt="MLM Lab" className="h-10" />
             </Link>
           </div>
 
@@ -142,4 +141,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Navbar;
