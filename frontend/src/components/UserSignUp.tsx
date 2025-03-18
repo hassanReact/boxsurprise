@@ -1,8 +1,21 @@
 import React, { useState } from 'react';
 import { UserCircle2, Mail, Lock, Phone, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
+interface SignUpResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    userId: string;
+    email: string;
+  };
+}
+
 function UserSignUp() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -13,10 +26,64 @@ function UserSignUp() {
     referralId: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateForm = () => {
+    if (formData.password !== formData.confirmPassword) {
+      throw new Error("Passwords don't match");
+    }
+    if (formData.password.length < 8) {
+      throw new Error("Password must be at least 8 characters long");
+    }
+    // Add more validation as needed
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle signup logic here
-    console.log('Signup attempted with:', formData);
+    setError(null);
+    setSuccess(null);
+    setIsLoading(true);
+
+    try {
+      // Validate form before submission
+      validateForm();
+
+      // API call
+      const response = await fetch('', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+        }),
+      });
+
+      const data: SignUpResponse = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Signup failed');
+      }
+
+      // Handle successful signup
+      setSuccess('Account created successfully! Please check your email for verification.');
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        password: '',
+        confirmPassword: '',
+        referralId: '',
+      });
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -25,6 +92,9 @@ function UserSignUp() {
       ...prev,
       [name]: value
     }));
+    // Clear error and success messages when user starts typing
+    setError(null);
+    setSuccess(null);
   };
 
   return (
@@ -35,6 +105,18 @@ function UserSignUp() {
           <h1 className="text-3xl font-bold text-gray-900">Join Our Network</h1>
           <p className="text-gray-500">Create your account and start your journey to success</p>
         </div>
+
+        {/* Error and Success Messages */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600">{error}</p>
+          </div>
+        )}
+        {success && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-green-600">{success}</p>
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -56,6 +138,7 @@ function UserSignUp() {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
                   placeholder="Enter your first name"
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -76,6 +159,7 @@ function UserSignUp() {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
                   placeholder="Enter your last name"
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -99,6 +183,7 @@ function UserSignUp() {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
                   placeholder="Enter your email"
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -119,6 +204,7 @@ function UserSignUp() {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
                   placeholder="Enter your phone number"
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -142,11 +228,14 @@ function UserSignUp() {
                   className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
                   placeholder="Create a password"
                   required
+                  disabled={isLoading}
+                  minLength={8}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  disabled={isLoading}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -173,105 +262,12 @@ function UserSignUp() {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
                   placeholder="Confirm your password"
                   required
+                  disabled={isLoading}
+                  minLength={8}
                 />
               </div>
             </div>
           </div>
-
-          {/* MLM Specific Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Sponsor ID */}
-            {/* <div className="space-y-2">
-              <label htmlFor="sponsorId" className="text-sm font-medium text-gray-700 block">
-                Sponsor ID
-              </label>
-              <div className="relative">
-                <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  id="sponsorId"
-                  name="sponsorId"
-                  value={formData.sponsorId}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
-                  placeholder="Enter sponsor's ID"
-                  required
-                />
-              </div>
-            </div> */}
-
-            {/* Position Selection */}
-            {/* <div className="space-y-2">
-              <label htmlFor="position" className="text-sm font-medium text-gray-700 block">
-                Position Preference
-              </label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <select
-                  id="position"
-                  name="position"
-                  value={formData.position}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors appearance-none bg-white"
-                >
-                  <option value="left">Left</option>
-                  <option value="right">Right</option>
-                  <option value="auto">Auto Placement</option>
-                </select>
-              </div>
-            </div> */}
-          </div>
-
-          {/* Account Type */}
-          {/* <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 block">
-              Account Type
-            </label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <label className="relative flex cursor-pointer items-start p-4 border rounded-lg hover:bg-gray-50">
-                <input
-                  type="radio"
-                  name="accountType"
-                  value="basic"
-                  checked={formData.accountType === 'basic'}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-emerald-500 focus:ring-emerald-500"
-                />
-                <div className="ml-3">
-                  <span className="block text-sm font-medium text-gray-900">Basic</span>
-                  <span className="block text-sm text-gray-500">$99/month</span>
-                </div>
-              </label>
-              <label className="relative flex cursor-pointer items-start p-4 border rounded-lg hover:bg-gray-50">
-                <input
-                  type="radio"
-                  name="accountType"
-                  value="premium"
-                  checked={formData.accountType === 'premium'}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-emerald-500 focus:ring-emerald-500"
-                />
-                <div className="ml-3">
-                  <span className="block text-sm font-medium text-gray-900">Premium</span>
-                  <span className="block text-sm text-gray-500">$199/month</span>
-                </div>
-              </label>
-              <label className="relative flex cursor-pointer items-start p-4 border rounded-lg hover:bg-gray-50">
-                <input
-                  type="radio"
-                  name="accountType"
-                  value="elite"
-                  checked={formData.accountType === 'elite'}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-emerald-500 focus:ring-emerald-500"
-                />
-                <div className="ml-3">
-                  <span className="block text-sm font-medium text-gray-900">Elite</span>
-                  <span className="block text-sm text-gray-500">$299/month</span>
-                </div>
-              </label>
-            </div>
-          </div> */}
 
           {/* Terms and Conditions */}
           <div className="flex items-start space-x-2">
@@ -279,6 +275,7 @@ function UserSignUp() {
               type="checkbox"
               id="terms"
               required
+              disabled={isLoading}
               className="mt-1 h-4 w-4 text-emerald-500 focus:ring-emerald-500 border-gray-300 rounded"
             />
             <label htmlFor="terms" className="text-sm text-gray-600">
@@ -296,9 +293,12 @@ function UserSignUp() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-emerald-600 text-white py-3 px-4 rounded-lg hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-300 focus:outline-none transition-colors duration-200 flex items-center justify-center space-x-2 font-medium"
+            disabled={isLoading}
+            className={`w-full bg-emerald-600 text-white py-3 px-4 rounded-lg hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-300 focus:outline-none transition-colors duration-200 flex items-center justify-center space-x-2 font-medium ${
+              isLoading ? 'opacity-75 cursor-not-allowed' : ''
+            }`}
           >
-            <span>Create Account</span>
+            <span>{isLoading ? 'Creating Account...' : 'Create Account'}</span>
             <ArrowRight className="h-5 w-5" />
           </button>
         </form>
