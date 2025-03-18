@@ -61,11 +61,17 @@ export const loginUser = async (req: Request, res: Response): Promise<void>  => 
 
     // Check if user exists
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid email or password" });
+    if (!user) {
+      res.status(400).json({ message: "Invalid email or password" });
+      return;
+    }
 
     // Compare hashed password
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
+    if (!isMatch) {
+      res.status(400).json({ message: "Invalid email or password" });
+      return;
+    }
 
     // Generate JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string, {
