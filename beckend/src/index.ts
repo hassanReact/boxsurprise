@@ -17,6 +17,9 @@ mongoose
   .catch((err) => console.error("❌ Database Connection Failed", err));
 
 // Routes
+app.use('/' , (req ,res) => {
+  res.json({Message : "API is WORKING"})
+})
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/webhook", clerkWebHook);
