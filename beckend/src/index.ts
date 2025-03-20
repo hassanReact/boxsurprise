@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import { clerkWebHook } from "./controllers/webHooks";
+import { clerkWebHook } from "./controllers/webhooks";
 
 dotenv.config();
 const app = express();
