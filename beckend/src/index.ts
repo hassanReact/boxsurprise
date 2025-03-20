@@ -1,8 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import authRoutes from "./routes/userRoutes"
-import userRoutes from "./routes/userRoutes";
 import { clerkWebHook } from "./controllers/webHooks";
 
 dotenv.config();
@@ -20,8 +18,7 @@ mongoose
 app.use('/' , (req ,res) => {
   res.json({Message : "API is WORKING"})
 })
-app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);
+
 app.use("/api/webhook", clerkWebHook);
 
 const PORT = process.env.PORT || 5000;
