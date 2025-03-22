@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
+import { useClerk, useSignIn } from "@clerk/clerk-react";
 import { Eye, EyeOff, UserCircle2, Lock, ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 function UserLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
+    email: '',
     password: '',
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle login logic here
-    console.log('Login attempted with:', formData);
-  };
+  const { isLoaded, signIn, setActive } = useSignIn();
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  // const {signOut} = useClerk();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,6 +23,62 @@ function UserLogin() {
     }));
   };
 
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isLoaded) return;
+
+    try {
+      const result = await signIn.create({
+        identifier: formData.email,
+        password: formData.password,
+      });
+    
+      console.log("SignIn Result:", result);
+    
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        navigate("/dashboard");
+      } else {
+        console.log("Sign-in incomplete, result:", result);
+      }
+    } catch (err) {
+      console.error("Login Error:", err);
+    }
+    
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (!isLoaded || !signIn) return; // Agar Clerk load nahi hua ya signIn unavailable hai, toh return kar do
+  
+    try {
+      await signIn.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/oauth-callback",
+        redirectUrlComplete: "/dashboard",
+      });
+    } catch (err) {
+      console.error("Google Sign-In Error:", err);
+      setError("Google Sign-In failed. Please try again.");
+    }
+  };
+  
+
+  const handleFacebookSignIn = async () => {
+    if (!isLoaded || !signIn) return; // Agar Clerk load nahi hua ya signIn unavailable hai, toh return kar do
+  
+    try {
+      await signIn.authenticateWithRedirect({
+        strategy: "oauth_facebook",
+        redirectUrl: "/oauth-callback",
+        redirectUrlComplete: "/dashboard",
+      });
+    } catch (err) {
+      console.error("Facebook Sign-In Error:", err);
+      setError("Facebook Sign-In failed. Please try again.");
+    }
+  };
+  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 space-y-6">
@@ -30,9 +87,10 @@ function UserLogin() {
           <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
           <p className="text-gray-500">Enter your credentials to access your account</p>
         </div>
+        {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleLogin} className="space-y-6">
           {/* Username Field */}
           <div className="space-y-2">
             <label htmlFor="username" className="text-sm font-medium text-gray-700 block">
@@ -109,6 +167,32 @@ function UserLogin() {
             <span>Sign In</span>
             <ArrowRight className="h-5 w-5" />
           </button>
+
+          {/* Google Login Button */}
+        <div className="">
+          <button
+            onClick={handleGoogleSignIn}
+            className="w-full bg-pink-600 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-400"
+          >
+            Continue with Google
+          </button>
+        </div>
+
+        {/* Google Login Button */}
+        <div className="">
+          <button
+            onClick={handleFacebookSignIn}
+            className="w-full bg-pink-600 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-400"
+          >
+            Continue with Facebook
+          </button>
+        </div>
+
+        <div className="text-center mt-4">
+            <Link to="/forgot-password" className="text-pink-600 hover:underline text-sm font-medium">
+              Forgot your password?
+            </Link>
+          </div>
         </form>
 
         {/* Sign Up Link */}

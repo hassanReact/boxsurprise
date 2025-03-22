@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
+import { useSignUp } from "@clerk/clerk-react";
 import { UserCircle2, Mail, Lock, Phone, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useSignIn } from '@clerk/clerk-react';
+
 
 interface SignUpResponse {
   success: boolean;
@@ -15,6 +19,11 @@ function UserSignUp() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const {isLoaded, signUp} = useSignUp();
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const navigate = useNavigate();
+  const { signIn } = useSignIn();
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -38,16 +47,38 @@ function UserSignUp() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    setIsLoading(true);
+
+    console.log("Form Data:", formData); // Debugging step
 
     try {
+
       // Validate form before submission
       validateForm();
+      if (!isLoaded) return;
+
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    console.log("Sending firstName:", formData.firstName);
+    console.log("Sending lastName:", formData.lastName);
+
+    // 1️⃣ Clerk pe user create karo
+    await signUp.create({
+      emailAddress: formData.email,
+      password: formData.password,
+      // first_name: formData.firstName,
+      // last_name: formData.lastName,  
+    });
+
+    // 2️⃣ OTP send karo
+    await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+
+    setPendingVerification(true);
+    setSuccess("OTP sent to your email. Please enter the code.");
 
       // API call
-      const response = await fetch('', {
+      const response = await fetch('https://boxsurprise-server.vercel.app/api/webhook', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,6 +117,88 @@ function UserSignUp() {
     }
   };
 
+  const handleGoogleSignup = async () => {
+    if (!isLoaded) return;
+    await signUp.authenticateWithRedirect({
+      strategy: "oauth_google",
+      redirectUrl: "/oauth-callback",
+      redirectUrlComplete: "/dashboard",
+    });
+  };
+
+  const handleFacebookSignup = async () => {
+    if (!isLoaded) return;
+    try {
+        await signUp.authenticateWithRedirect({
+            strategy: "oauth_facebook",
+            redirectUrl: "/oauth-callback",
+            redirectUrlComplete: "/dashboard",
+        });
+    } catch (error) {
+        console.error("Facebook Signup Error:", error);
+    }
+};
+
+  const handleVerifyOTP = async () => {
+    try {
+      if (!isLoaded) return;
+  
+      setIsLoading(true);
+      setError(null);
+      setSuccess(null);
+  
+      // 3️⃣ OTP verify karo
+      const completeSignUp = await signUp.attemptEmailAddressVerification({
+        code: otpCode,
+      });
+  
+      if (completeSignUp.status === "complete") {
+        setSuccess("Account created successfully! You can now log in.");
+
+      // ✅ 2 second delay ke baad redirect karein
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000);
+      
+        setPendingVerification(false);
+        setFormData({ ...formData, email: "", password: "", confirmPassword: "" });
+      } else {
+        setError("Invalid OTP. Please try again.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid verification code.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+//   const handleOAuthLogin = async (provider: "oauth_google" | "oauth_facebook") => {
+//     try {
+//         setIsLoading(true);
+//         setError(null);
+//         setSuccess(null);
+
+//         if (!signIn) {
+//             throw new Error("Sign-in resource is not initialized. Please try again.");
+//         }
+
+//         await signIn.authenticateWithRedirect({
+//           strategy: provider,
+//           redirectUrl: "/dashboard",
+//           redirectUrlComplete: '/dashboard'
+//         });
+
+//         setSuccess("Redirecting to OAuth provider...");
+//     } catch (err) {
+//         setError(err instanceof Error ? err.message : "OAuth login error. Please try again.");
+//     } finally {
+//         setIsLoading(false);
+//     }
+// };
+
+
+  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -119,7 +232,8 @@ function UserSignUp() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {!pendingVerification ? (
+          <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name Fields - Grid Layout */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* First Name */}
@@ -301,7 +415,24 @@ function UserSignUp() {
             <span>{isLoading ? 'Creating Account...' : 'Create Account'}</span>
             <ArrowRight className="h-5 w-5" />
           </button>
-        </form>
+
+          {/* Social Login Buttons */}
+        <div className="flex flex-col gap-4">
+          <button
+            onClick={handleGoogleSignup}
+            className="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center space-x-2 font-medium"
+            // disabled={isLoading}
+          >
+            <span>Sign Up with Google</span>
+          </button>
+          <button
+            onClick={handleFacebookSignup}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 font-medium"
+            // disabled={isLoading}
+          >
+            <span>Sign Up with Facebook</span>
+          </button>
+        </div>
 
         {/* Login Link */}
         <p className="text-center text-sm text-gray-600 mt-6">
@@ -310,9 +441,34 @@ function UserSignUp() {
             Sign in here
           </a>
         </p>
+        </form>
+        )
+        : (
+          <form onSubmit={handleVerifyOTP} className="space-y-4">
+            <input
+              type="text"
+              placeholder="Verification Code"
+              className="w-full border p-3 rounded"
+              onChange={(e) => setOtpCode(e.target.value)}
+              required
+            />
+            <button
+              type="submit"
+              className="w-full bg-green-600 text-white p-3 rounded"
+            >
+              Verify Email
+            </button>
+          </form>
+        )}
+        
       </div>
     </div>
   );
 }
 
 export default UserSignUp;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function startOAuthFlow(arg0: { strategy: "oauth_google" | "oauth_facebook"; redirectUrl: string; }) {
+  throw new Error('Function not implemented.');
+}
