@@ -27,8 +27,10 @@ if (!PUBLISHABLE_KEY) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/" afterSignInUrl="/dashboard" afterSignUpUrl="/dashboard">
-    <App />
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+    <App onLogin={function (): void {
+        throw new Error('Function not implemented.')
+      } } />
     </ClerkProvider>
   </StrictMode>,
 )

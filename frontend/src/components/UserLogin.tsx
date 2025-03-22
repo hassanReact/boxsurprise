@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { useClerk, useSignIn } from "@clerk/clerk-react";
+import { useSignIn } from "@clerk/clerk-react";
 import { Eye, EyeOff, UserCircle2, Lock, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
-function UserLogin() {
+interface Props{ onLogin: (role: string) => void; }
+
+function UserLogin({onLogin}:Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: '',

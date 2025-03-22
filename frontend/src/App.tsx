@@ -18,6 +18,10 @@ import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import OAuthCallback from './components/OAuthCallback';
 
+type Props = {
+  onLogin: (role: string) => void;
+};
+
 const AuthHandler: React.FC<{ setIsLoggedIn: (val: boolean) => void }> = ({ setIsLoggedIn }) => {
   const { isSignedIn, isLoaded } = useAuth();
   const navigate = useNavigate();
@@ -29,16 +33,17 @@ const AuthHandler: React.FC<{ setIsLoggedIn: (val: boolean) => void }> = ({ setI
     }
   }, [isSignedIn, isLoaded, navigate, setIsLoggedIn]);
 
-  return null; // Yeh sirf auth handle karne ke liye hai, koi UI render nahi karega
+  return null;
 };
 
-const App: React.FC = () => {
+const App: React.FC<Props> = ({ onLogin }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<string>('user'); // 'user' or 'admin'
 
   const handleLogin = (role: string) => {
     setIsLoggedIn(true);
     setUserRole(role);
+    onLogin(role); // If `onLogin` is needed
   };
 
   const handleLogout = () => {
@@ -73,8 +78,9 @@ const App: React.FC = () => {
               <Routes>
                 {userRole === 'admin' ? (
                   <>
-                    {/* <Route path="/dashboard" element={<AdminDashboard />} />
-                    <Route path="/users" element={<AdminUsers />} /> */}
+                    {/* Admin Routes (Uncomment and add components as needed) */}
+                    {/* <Route path="/dashboard" element={<AdminDashboard />} /> */}
+                    {/* <Route path="/users" element={<AdminUsers />} /> */}
                     {/* <Route path="*" element={<Navigate to="/dashboard" replace />} /> */}
                   </>
                 ) : (
