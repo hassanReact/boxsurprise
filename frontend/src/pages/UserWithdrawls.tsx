@@ -45,7 +45,7 @@ const WithdrawRequests: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-16">
       {/* New Withdrawal Request Form */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">

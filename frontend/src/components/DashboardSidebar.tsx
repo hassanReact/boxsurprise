@@ -11,6 +11,7 @@ import {
   BarChart, 
   LogOut
 } from 'lucide-react';
+import { useLogout } from "../hooks/useLogout"; // Ensure correct path
 
 interface SidebarProps {
   userRole: string;
@@ -22,15 +23,26 @@ const Sidebar: React.FC<SidebarProps> = ({
   userRole
 }) => {
   const location = useLocation();
-  const isActive = (path: string) => location.pathname === path;
+  // const isActive = (path: string) => location.pathname === path;
+  const logout = useLogout();
+
+  // ✅ Fix: Ensure subroutes like `/dashboard/referral-tree` are also detected
+  const isActive = (path: string) => {
+    return location.pathname === path || location.pathname.startsWith(path);
+  };
+
+  // const isActive = (path) => {
+  //   const location = useLocation();
+  //   return location.pathname.startsWith(`/dashboard/${path}`);
+  // };
   
   const userNavItems = [
     { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/dashboard' },
-    { icon: <Network size={20} />, label: 'Referral Tree', path: '/referral-tree' },
-    { icon: <DollarSign size={20} />, label: 'Earnings', path: '/earnings' },
-    { icon: <CreditCard size={20} />, label: 'Withdrawals', path: '/withdrawals' },
-    { icon: <MessageSquare size={20} />, label: 'Posts', path: '/posts' },
-    { icon: <Settings size={20} />, label: 'Settings', path: '/settings' },
+    { icon: <Network size={20} />, label: 'Referral Tree', path: '/dashboard/referral-tree' },
+    { icon: <DollarSign size={20} />, label: 'Earnings', path: '/dashboard/earnings' },
+    { icon: <CreditCard size={20} />, label: 'Withdrawals', path: '/dashboard/withdrawals' },
+    { icon: <MessageSquare size={20} />, label: 'Posts', path: '/dashboard/posts' },
+    { icon: <Settings size={20} />, label: 'Settings', path: '/dashboard/settings' },
   ];
 
   const adminNavItems = [
@@ -136,9 +148,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-2 border-t border-indigo-800 flex justify-center">
             <button 
               className="my-4 flex items-center justify-center p-3 text-white bg-indigo-700 rounded-md hover:bg-indigo-600 transition-all duration-200"
-              onClick={() => {
-                console.log('Logout clicked');
-              }}
+              onClick={logout}
               title="Logout"
             >
               <LogOut size={16} />

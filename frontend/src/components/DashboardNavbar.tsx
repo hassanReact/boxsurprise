@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, User, LogOut, Menu, X } from 'lucide-react';
+import { useLogout } from "../hooks/useLogout"; // Ensure correct path
+import { Bell, User, Menu, X } from 'lucide-react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 
 interface NavbarProps {
@@ -8,13 +9,18 @@ interface NavbarProps {
   isSidebarOpen: boolean;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onLogout, onToggleSidebar, isSidebarOpen }) => {
-  const { isSignedIn } = useAuth();
-  const { user } = useUser();
+const Navbar: React.FC<NavbarProps> = ({ 
+  onToggleSidebar, 
+  isSidebarOpen 
+}) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const logout = useLogout();
+
+  const {isSignedIn} = useAuth()
+  const {user} = useUser()
   
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -102,27 +108,19 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout, onToggleSidebar, isSidebarOpe
           </div>
           {showProfileMenu && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-              {isSignedIn ? (
-                <>
-                  <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Profile
-                  </a>
-                  <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Settings
-                  </a>
-                  <div className="border-t border-gray-100"></div>
-                  <button 
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                    onClick={onLogout}
-                  >
-                    Sign out
-                  </button>
-                </>
-              ) : (
-                <a href="/login" className="block px-4 py-2 text-sm text-indigo-600 hover:bg-gray-100">
-                  Sign in
-                </a>
-              )}
+              <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                Profile
+              </a>
+              <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                Settings
+              </a>
+              <div className="border-t border-gray-100"></div>
+              <button 
+                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                onClick={logout}
+              >
+                Sign out
+              </button>
             </div>
           )}
         </div>

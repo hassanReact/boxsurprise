@@ -8,7 +8,6 @@ interface Props{ onLogin: (role: string) => void; }
 function UserLogin({onLogin}:Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    username: '',
     email: '',
     password: '',
   });
@@ -28,41 +27,69 @@ function UserLogin({onLogin}:Props) {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoaded) return;
-
-    try {
-      const result = await signIn.create({
-        identifier: formData.email,
-        password: formData.password,
-      });
-    
-      console.log("SignIn Result:", result);
-    
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        navigate("/dashboard");
-      } else {
-        console.log("Sign-in incomplete, result:", result);
-      }
-    } catch (err) {
-      console.error("Login Error:", err);
-    }
-    
-  };
-
-  const handleGoogleSignIn = async () => {
-    if (!isLoaded || !signIn) return; // Agar Clerk load nahi hua ya signIn unavailable hai, toh return kar do
   
     try {
-      await signIn.authenticateWithRedirect({
-        strategy: "oauth_google",
-        redirectUrl: "/oauth-callback",
-        redirectUrlComplete: "/dashboard",
+      const result = await signIn.create({
+        identifier: formData.email, // Using email as identifier
+        password: formData.password,
       });
-    } catch (err) {
-      console.error("Google Sign-In Error:", err);
-      setError("Google Sign-In failed. Please try again.");
+  
+      console.log("SignIn Result:", result);
+  
+      if (result.status === "complete") {
+        console.log("Session ID:", result.createdSessionId);
+  
+        if (result.createdSessionId) {
+          await setActive({ session: result.createdSessionId });
+          navigate("/dashboard");
+          onLogin("user");
+        } else {
+          setError("Session creation failed. Please try again.");
+        }
+      } else {
+        console.log("Sign-in incomplete, result:", result);
+        setError("Login could not be completed. Try again.");
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.error("Login Error:", err);
+  
+      if (err.errors) {
+        if (err.errors[0]?.code === "not_found") {
+          setError("User not found. Please sign up first.");
+        } else if (err.errors[0]?.code === "incorrect_password") {
+          setError("Incorrect password. Please try again.");
+        } else {
+          setError("Login failed. Please check your credentials.");
+        }
+      } else {
+        setError("An unexpected error occurred. Try again later.");
+      }
     }
   };
+  
+  
+
+  const handleGoogleSignIn = async () => {
+  if (!isLoaded || !signIn) return;
+
+  try {
+    await signIn.authenticateWithRedirect({
+      strategy: "oauth_google",
+      redirectUrl: "/oauth-callback",
+      redirectUrlComplete: "/dashboard",
+    });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    console.error("Google Sign-In Error:", err);
+
+    if (err.errors && err.errors[0]?.code === "not_found") {
+      setError("No account found. Please sign up first.");
+    } else {
+      setError("Google Sign-In failed. Try again.");
+    }
+  }
+};
   
 
   const handleFacebookSignIn = async () => {
@@ -102,9 +129,9 @@ function UserLogin({onLogin}:Props) {
               <UserCircle2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="text"
-                id="username"
-                name="username"
-                value={formData.username}
+                id="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-colors"
                 placeholder="Enter your username"

@@ -24,10 +24,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ icon: Icon, title, descriptio
       
       <div className="relative">
         <div className="flex items-center justify-center w-20 h-20 mb-6 rounded-full bg-purple-100 group-hover:bg-purple-200 transition-colors duration-300">
-          <Icon className="w-10 h-10 text-purple-600 group-hover:text-purple-700 transition-colors duration-300" />
+          <Icon className="w-10 h-10 text-blue-600 group-hover:text-blue-700 transition-colors duration-300" />
         </div>
         
-        <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-purple-700 transition-colors duration-300">
+        <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-700 transition-colors duration-300">
           {title}
         </h3>
         
@@ -77,7 +77,7 @@ const Services: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <h2 className="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-900">
+          <h2 className="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-700">
             Our Services
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
