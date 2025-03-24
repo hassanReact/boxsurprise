@@ -80,7 +80,7 @@ const LatestTransactions: React.FC = () => {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
           <div className="container mx-auto px-4 py-20">
             <div className="text-center mb-16">
-              <h2 className="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-900">
+              <h2 className="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-700">
                 Latest Transactions
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, User, LogOut, Menu, X } from 'lucide-react';
+import { useLogout } from "../hooks/useLogout"; // Ensure correct path
+import { Bell, User, Menu, X } from 'lucide-react';
 
 interface NavbarProps {
   onLogout: () => void;
@@ -8,7 +9,6 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ 
-  onLogout, 
   onToggleSidebar, 
   isSidebarOpen 
 }) => {
@@ -16,6 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const [showNotifications, setShowNotifications] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const logout = useLogout();
   
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -107,7 +108,7 @@ const Navbar: React.FC<NavbarProps> = ({
               <div className="border-t border-gray-100"></div>
               <button 
                 className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                onClick={onLogout}
+                onClick={logout}
               >
                 Sign out
               </button>

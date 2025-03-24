@@ -1,7 +1,9 @@
 import React from 'react';
+// import { useLogout } from "../hooks/useLogout"; // Ensure correct path
 import { Users, DollarSign, TrendingUp, Award, CreditCard } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
+  // const logout = useLogout();
   const statsData = [
     { title: 'Total Referrals', value: '27', icon: <Users size={20} />, color: 'bg-blue-500' },
     { title: 'Total Earnings', value: '$1,234', icon: <DollarSign size={20} />, color: 'bg-green-500' },
@@ -12,9 +14,8 @@ const Dashboard: React.FC = () => {
   return (
     <div className="max-w-max transition-all duration-300">
       <div className="p-4 md:p-6 mt-16 bg-gray-50 min-h-screen">
-        <div className="mb-6">
+        <div className="mb-6 flex">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Dashboard</h1>
-          <p className="text-gray-600">Welcome to your MLM network dashboard</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
