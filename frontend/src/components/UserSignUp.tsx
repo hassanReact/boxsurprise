@@ -24,7 +24,6 @@ function UserSignUp() {
   const [otpCode, setOtpCode] = useState('');
   const navigate = useNavigate();
   const { signIn } = useSignIn();
-  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -78,7 +77,7 @@ function UserSignUp() {
     setSuccess("OTP sent to your email. Please enter the code.");
 
       // API call
-      const response = await fetch('https://boxsurprise-server.vercel.app/api/webhook', {
+      const response = await fetch('http://localhost:5000/api/webhook', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
