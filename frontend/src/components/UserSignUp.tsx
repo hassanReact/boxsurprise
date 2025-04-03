@@ -76,7 +76,7 @@ function UserSignUp() {
     setSuccess("OTP sent to your email. Please enter the code.");
 
       // API call
-      const response = await fetch(`${process.env.BASE_URL}5000/api/webhook`, {
+      const response = await fetch(`${process.env.BASE_URL}/api/webhook`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
