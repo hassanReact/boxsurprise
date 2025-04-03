@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, User, LogOut, Menu, X } from 'lucide-react';
+import { Bell, User, Menu, X } from 'lucide-react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 
 interface NavbarProps {

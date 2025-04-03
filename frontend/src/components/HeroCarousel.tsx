@@ -1,10 +1,8 @@
+"use client"
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade, Navigation, Pagination } from 'swiper/modules';
-// import 'swiper/css';
-// import 'swiper/css/effect-fade';
-// import 'swiper/css/navigation';
-// import 'swiper/css/pagination';
+// No Swiper CSS imports
 
 const HeroCarousel: React.FC = () => {
   const slides = [
@@ -81,27 +79,138 @@ const HeroCarousel: React.FC = () => {
           </SwiperSlide>
         ))}
       </Swiper>
-      {/* Custom Navigation Button Styles */}
-      <style>
-        {`
+
+      {/* Custom styles to replace Swiper CSS */}
+      <style>{`
+        /* Base Swiper styles */
+        .swiper {
+          margin-left: auto;
+          margin-right: auto;
+          position: relative;
+          overflow: hidden;
+          list-style: none;
+          padding: 0;
+          z-index: 1;
+        }
+        
+        .swiper-wrapper {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          z-index: 1;
+          display: flex;
+          transition-property: transform;
+          box-sizing: content-box;
+        }
+        
+        .swiper-slide {
+          flex-shrink: 0;
+          width: 100%;
+          height: 100%;
+          position: relative;
+          transition-property: transform;
+        }
+        
+        /* Fade effect */
+        .swiper-fade .swiper-slide {
+          pointer-events: none;
+          transition-property: opacity;
+        }
+        
+        .swiper-fade .swiper-slide-active {
+          pointer-events: auto;
+        }
+        
+        /* Navigation buttons */
         .swiper-button-prev,
         .swiper-button-next {
-          background-color: #2563eb; /* bg-blue-600 */
-          color: white;
+          position: absolute;
+          top: 50%;
           width: 50px;
           height: 50px;
-          border-radius: 50%;
+          margin-top: -25px;
+          z-index: 10;
+          cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
+          background-color: #2563eb;
+          color: white;
+          border-radius: 50%;
         }
-
+        
+        .swiper-button-prev {
+          left: 20px;
+        }
+        
+        .swiper-button-next {
+          right: 20px;
+        }
+        
         .swiper-button-prev:hover,
         .swiper-button-next:hover {
-          background-color: #1e40af; /* Darker blue */
+          background-color: #1e40af;
         }
-        `}
-      </style>
+        
+        .swiper-button-prev:after,
+        .swiper-button-next:after {
+          font-family: swiper-icons;
+          font-size: 20px;
+          text-transform: none !important;
+          letter-spacing: 0;
+          font-feature-settings: normal;
+          font-variant: normal;
+          line-height: 1;
+        }
+        
+        .swiper-button-prev:after {
+          content: 'prev';
+        }
+        
+        .swiper-button-next:after {
+          content: 'next';
+        }
+        
+        /* Pagination */
+        .swiper-pagination {
+          position: absolute;
+          text-align: center;
+          transition: 300ms opacity;
+          transform: translate3d(0, 0, 0);
+          z-index: 10;
+          bottom: 20px;
+          left: 0;
+          width: 100%;
+        }
+        
+        .swiper-pagination-bullet {
+          width: 10px;
+          height: 10px;
+          display: inline-block;
+          border-radius: 50%;
+          background: white;
+          opacity: 0.5;
+          margin: 0 5px;
+          cursor: pointer;
+        }
+        
+        .swiper-pagination-bullet-active {
+          opacity: 1;
+          background: #2563eb;
+        }
+
+        /* Animation */
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }

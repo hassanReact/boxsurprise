@@ -14,7 +14,7 @@ const OAuthCallback = () => {
   useEffect(() => {
     const handleOAuth = async () => {
       try {
-        await handleRedirectCallback(); // Handle OAuth redirect
+        await handleRedirectCallback({}); // Handle OAuth redirect
         if (user) {
           console.log("User Info:", user);
 

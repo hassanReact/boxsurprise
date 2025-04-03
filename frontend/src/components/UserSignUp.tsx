@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSignUp } from "@clerk/clerk-react";
 import { UserCircle2, Mail, Lock, Phone, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useSignIn } from '@clerk/clerk-react';
+// import { useSignIn } from '@clerk/clerk-react';
 
 
 interface SignUpResponse {
@@ -23,7 +23,6 @@ function UserSignUp() {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [otpCode, setOtpCode] = useState('');
   const navigate = useNavigate();
-  const { signIn } = useSignIn();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -77,7 +76,7 @@ function UserSignUp() {
     setSuccess("OTP sent to your email. Please enter the code.");
 
       // API call
-      const response = await fetch('http://localhost:5000/api/webhook', {
+      const response = await fetch(`${process.env.BASE_URL}5000/api/webhook`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,6 +87,7 @@ function UserSignUp() {
           email: formData.email,
           phone: formData.phone,
           password: formData.password,
+
         }),
       });
 
@@ -466,8 +466,3 @@ function UserSignUp() {
 }
 
 export default UserSignUp;
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function startOAuthFlow(arg0: { strategy: "oauth_google" | "oauth_facebook"; redirectUrl: string; }) {
-  throw new Error('Function not implemented.');
-}
