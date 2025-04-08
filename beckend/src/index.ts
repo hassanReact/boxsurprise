@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import { clerkWebHook } from "./controllers/webhooks";
 import * as Sentry from "@sentry/node";
 import dbConnect from "./config/db";
+import { signup } from "./controllers/signup";
+import { validateSignup } from "./middleware/signUpMiddleware";
 
 dotenv.config();
 const app = express();
@@ -20,7 +22,8 @@ app.get('/debug-sentry', function mainHandler(_req: Request, _res: Response) {
 })
 
 app.post("/api/webhook", clerkWebHook);
-
+app.post("/api/signup", validateSignup , signup);
+ 
 Sentry.setupExpressErrorHandler(app)
 
 const PORT = process.env.PORT || 5000;

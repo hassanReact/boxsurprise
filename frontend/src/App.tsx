@@ -53,10 +53,10 @@ const App: React.FC<Props> = ({ onLogin }) => {
     onLogin(role); // If `onLogin` is needed
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserRole("user");
-  };
+  // const handleLogout = () => {
+  //   setIsLoggedIn(false);
+  //   setUserRole("user");
+  // };
 
   return (
     <Router>
@@ -83,7 +83,9 @@ const App: React.FC<Props> = ({ onLogin }) => {
         <div className="flex h-screen bg-gray-100">
           <DashboardSidebar userRole={userRole} />
           <div className="flex-1 flex flex-col overflow-hidden">
-            <DashboardNavbar onLogout={handleLogout} onToggleSidebar={() => {}} isSidebarOpen={false} />
+            <DashboardNavbar onToggleSidebar={() => { } } isSidebarOpen={false} onLogout={function (): void {
+                throw new Error("Function not implemented.");
+              } } />
             <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 lg:ml-64 ml-16">
               <Routes>
                 <Route path="/dashboard/*" element={<DashboardLayout />}>

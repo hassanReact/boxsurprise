@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSignUp } from "@clerk/clerk-react";
 import { UserCircle2, Mail, Lock, Phone, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+// import { ref } from 'process';
 // import { useSignIn } from '@clerk/clerk-react';
 
 
@@ -65,8 +66,10 @@ function UserSignUp() {
     await signUp.create({
       emailAddress: formData.email,
       password: formData.password,
-      // first_name: formData.firstName,
-      // last_name: formData.lastName,  
+      firstName : formData.firstName,
+      lastName: formData.lastName,
+      phoneNumber: formData.phone,
+      username: formData.referralId,
     });
 
     // 2️⃣ OTP send karo
@@ -87,7 +90,7 @@ function UserSignUp() {
           email: formData.email,
           phone: formData.phone,
           password: formData.password,
-
+          referralId : formData.referralId
         }),
       });
 

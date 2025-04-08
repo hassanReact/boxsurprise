@@ -17,6 +17,16 @@ const userSchema = new mongoose.Schema(
       required: true,
       select: false, 
     },
+    phone : {
+      type: String,
+      required: false,
+      unique: true,
+      match: /^[0-9]{10,15}$/,
+    },
+    RootUser : {
+      type: Boolean,
+      default: false
+    },
     role: {
       type: String,
       enum: ["user", "admin"],
@@ -26,7 +36,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false 
     },
-    referralCode: {
+    referralId: {
       type: String,
       unique: true,
       index : true

@@ -1,41 +1,33 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Network, 
-  DollarSign, 
-  CreditCard, 
-  MessageSquare, 
-  Settings, 
-  Users, 
-  BarChart, 
+import {
+  LayoutDashboard,
+  Network,
+  DollarSign,
+  CreditCard,
+  MessageSquare,
+  Settings,
+  Users,
+  BarChart,
   LogOut
 } from 'lucide-react';
-import { useLogout } from "../hooks/useLogout"; // Ensure correct path
+import { useUser, useClerk } from '@clerk/clerk-react';
 
-interface SidebarProps {
+interface DashboardSidebarProps {
   userRole: string;
-  onToggleSidebar?: () => void;
-  isSidebarOpen?: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ 
-  userRole
-}) => {
+const Sidebar: React.FC<DashboardSidebarProps> = ({userRole}) => {
   const location = useLocation();
-  // const isActive = (path: string) => location.pathname === path;
-  const logout = useLogout();
+  const { user } = useUser();
+  const { signOut } = useClerk();
+  const userName = user?.fullName || 'Guest User';
+  const userInitial = userName.charAt(0).toUpperCase();
 
-  // ✅ Fix: Ensure subroutes like `/dashboard/referral-tree` are also detected
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(path);
   };
 
-  // const isActive = (path) => {
-  //   const location = useLocation();
-  //   return location.pathname.startsWith(`/dashboard/${path}`);
-  // };
-  
   const userNavItems = [
     { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/dashboard' },
     { icon: <Network size={20} />, label: 'Referral Tree', path: '/dashboard/referral-tree' },
@@ -60,8 +52,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Desktop Sidebar */}
       <aside className="hidden lg:block w-64 h-screen bg-indigo-900 text-white fixed left-0 top-0">
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-center h-16 px-4 border-b border-indigo-800">
-            <h1 className="text-2xl font-bold">MLM Network</h1>
+          <div className="flex items-center justify-center h-20 px-4 border-b border-indigo-800">
+            <img src='/BoxSurprise - WhiteVersion.png' className='w-40 h-40'/>
           </div>
 
           <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
@@ -91,24 +83,24 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <div className="bg-indigo-700 p-2 rounded-full">
                   <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center">
                     <span className="font-bold text-white">
-                      {userRole === 'admin' ? 'A' : 'U'}
+                      {user?.imageUrl ? 
+                        <img src={user.imageUrl} alt={userName} className="rounded-full" /> 
+                        : userInitial}
                     </span>
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium">
-                    {userRole === 'admin' ? 'Admin User' : 'John Doe'}
+                  <div className="text-sm font-medium">{userName}</div>
+                  <div className="text-xs text-indigo-200">
+                    Role: {userRole}
                   </div>
-                  <div className="text-xs text-indigo-200">ID: #12345</div>
                 </div>
               </div>
             </div>
 
-            <button 
+            <button
               className="mt-4 w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm text-white bg-indigo-700 rounded-md hover:bg-indigo-600 transition-all duration-200"
-              onClick={() => {
-                console.log('Logout clicked');
-              }}
+              onClick={() => signOut()}
             >
               <LogOut size={16} />
               <span>Logout</span>
@@ -117,13 +109,13 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </aside>
 
-      {/* Mobile Icons Sidebar */}
+      {/* Mobile Sidebar */}
       <aside className="lg:hidden w-16 h-screen bg-indigo-900 text-white fixed left-0 top-0">
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-center h-16 border-b border-indigo-800">
             <span className="text-xl font-bold">MLM</span>
           </div>
-          
+
           <nav className="flex-1 px-2 py-4 space-y-4 overflow-y-auto flex flex-col items-center">
             {navItems.map((item, index) => (
               <Link
@@ -146,9 +138,9 @@ const Sidebar: React.FC<SidebarProps> = ({
           </nav>
 
           <div className="p-2 border-t border-indigo-800 flex justify-center">
-            <button 
+            <button
               className="my-4 flex items-center justify-center p-3 text-white bg-indigo-700 rounded-md hover:bg-indigo-600 transition-all duration-200"
-              onClick={logout}
+              onClick={() => signOut()}
               title="Logout"
             >
               <LogOut size={16} />

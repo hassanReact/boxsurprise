@@ -2,7 +2,6 @@
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade, Navigation, Pagination } from 'swiper/modules';
-// No Swiper CSS imports
 
 const HeroCarousel: React.FC = () => {
   const slides = [
@@ -210,7 +209,8 @@ const HeroCarousel: React.FC = () => {
             transform: translateY(0);
           }
         }
-      `}</style>
+      `}
+      </style>
     </div>
   );
 }
