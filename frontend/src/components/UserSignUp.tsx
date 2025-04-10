@@ -6,14 +6,14 @@ import { useNavigate } from 'react-router-dom';
 // import { useSignIn } from '@clerk/clerk-react';
 
 
-interface SignUpResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    userId: string;
-    email: string;
-  };
-}
+// interface SignUpResponse {
+//   success: boolean;
+//   message: string;
+//   data?: {
+//     userId: string;
+//     email: string;
+//   };
+// }
 
 function UserSignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -79,26 +79,26 @@ function UserSignUp() {
     setSuccess("OTP sent to your email. Please enter the code.");
 
       // API call
-      const response = await fetch(`${process.env.BASE_URL}/api/webhook`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          password: formData.password,
-          referralId : formData.referralId
-        }),
-      });
+      // const response = await fetch(`${process.env.BASE_URL}/api/webhook`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     firstName: formData.firstName,
+      //     lastName: formData.lastName,
+      //     email: formData.email,
+      //     phone: formData.phone,
+      //     password: formData.password,
+      //     referralId : formData.referralId
+      //   }),
+      // });
 
-      const data: SignUpResponse = await response.json();
+      // const data: SignUpResponse = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Signup failed');
-      }
+      // if (!response.ok) {
+      //   throw new Error(data.message || 'Signup failed');
+      // }
 
       // Handle successful signup
       setSuccess('Account created successfully! Please check your email for verification.');

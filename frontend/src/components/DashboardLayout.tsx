@@ -15,21 +15,21 @@ const DashboardLayout = () => {
 
   console.log(user)
 
-  const fetchData = async () => {
-    try {
-      await fetch("/api/signup", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          // Add your data here
-        })
-      });
-    } catch (error: unknown) {
-      console.error('Error:', error);
-    }
-  };
+  // const fetchData = async () => {
+  //   try {
+  //     await fetch("/api/signup", {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({
+  //         // Add your data here
+  //       })
+  //     });
+  //   } catch (error: unknown) {
+  //     console.error('Error:', error);
+  //   }
+  // };
 
 
   return (
