@@ -1,7 +1,7 @@
-"use client"
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade, Navigation, Pagination } from 'swiper/modules';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 const HeroCarousel: React.FC = () => {
   const slides = [
@@ -30,7 +30,10 @@ const HeroCarousel: React.FC = () => {
       <Swiper
         modules={[Autoplay, EffectFade, Navigation, Pagination]}
         effect="fade"
-        navigation
+        navigation={{
+          prevEl: '.swiper-button-prev',
+          nextEl: '.swiper-button-next',
+        }}
         pagination={{ clickable: true }}
         autoplay={{
           delay: 5000,
@@ -77,6 +80,15 @@ const HeroCarousel: React.FC = () => {
             </div>
           </SwiperSlide>
         ))}
+
+        {/* Custom Navigation Buttons with new icons */}
+        <div className="swiper-button-prev">
+          <ArrowLeft size={24} />
+        </div>
+        <div className="swiper-button-next">
+          <ArrowRight size={24} />
+        </div>
+
       </Swiper>
 
       {/* Custom styles to replace Swiper CSS */}
@@ -163,11 +175,11 @@ const HeroCarousel: React.FC = () => {
         }
         
         .swiper-button-prev:after {
-          content: 'prev';
+          content: '';
         }
         
         .swiper-button-next:after {
-          content: 'next';
+          content: '';
         }
         
         /* Pagination */

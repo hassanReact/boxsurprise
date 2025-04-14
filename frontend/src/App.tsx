@@ -22,17 +22,19 @@ import Settings from "./pages/UserSettings";
 // import { useNavigate } from "react-router-dom";
 // import OAuthCallback from "./components/OAuthCallback";
 import DashboardLayout from "./components/DashboardLayout";
-import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 import VerifyUser from "./components/VerifyUser";
 
 
 
 
 const App: React.FC = () => {
-  const {isAuthenticated} = useKindeAuth()
   const [userRole, _setUserRole] = useState<string>("user"); // 'user' or 'admin'
 
+  const [isAuthenticated, _setIsAuthenticated] = useState<boolean>(false);
+  
   const authenticationRoute = window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname === "/verify-user";
+
+  // const showDashboard = devMode || isLoggedIn;
 
   return (
     <Router>
@@ -58,11 +60,11 @@ const App: React.FC = () => {
       ) : (
         <div className="flex h-screen bg-gray-100">
           <DashboardSidebar userRole={userRole} />
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col ">
             <DashboardNavbar onToggleSidebar={() => { } } isSidebarOpen={false} onLogout={function (): void {
                 throw new Error("Function not implemented.");
               } } />
-            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 lg:ml-64 ml-16">
+            <main className="flex-1 overflow-hidden bg-gray-100 p-4 lg:ml-64 ml-16">
               <Routes>
                 <Route path="/dashboard/*" element={<DashboardLayout />}>
                   <Route index element={<Dashboard />} />

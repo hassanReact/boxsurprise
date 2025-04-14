@@ -17,21 +17,21 @@ const WithdrawRequests: React.FC = () => {
   const withdrawalHistory: WithdrawalRequest[] = [
     {
       id: 'WD001',
-      amount: '$500.00',
+      amount: 'Rs: 500.00',
       status: 'pending',
       date: '2024-03-15',
       paymentMethod: 'Bank Transfer'
     },
     {
       id: 'WD002',
-      amount: '$300.00',
+      amount: 'Rs: 300.00',
       status: 'approved',
       date: '2024-03-10',
       paymentMethod: 'PayPal'
     },
     {
       id: 'WD003',
-      amount: '$200.00',
+      amount: 'Rs: 200.00',
       status: 'rejected',
       date: '2024-03-05',
       paymentMethod: 'Bank Transfer'
@@ -58,7 +58,7 @@ const WithdrawRequests: React.FC = () => {
             </label>
             <div className="mt-1 relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span className="text-gray-500 sm:text-sm">$</span>
+                <span className="text-gray-500 sm:text-sm">Rs: </span>
               </div>
               <input
                 type="number"
@@ -69,7 +69,7 @@ const WithdrawRequests: React.FC = () => {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
-                placeholder="0.00"
+                placeholder=" 0.00"
                 required
               />
             </div>
@@ -103,7 +103,7 @@ const WithdrawRequests: React.FC = () => {
                 </h3>
                 <div className="mt-2 text-sm text-yellow-700">
                   <p>
-                    - Minimum withdrawal amount is $100<br />
+                    - Minimum withdrawal amount is Rs: 100<br />
                     - Processing time: 2-3 business days<br />
                     - Withdrawal fees may apply
                   </p>

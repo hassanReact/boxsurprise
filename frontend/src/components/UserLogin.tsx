@@ -14,7 +14,6 @@ function UserLogin() {
   const handleRegister = async () => {
   };
 
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 space-y-6">
