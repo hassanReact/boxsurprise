@@ -1,471 +1,178 @@
-import React, { useState } from 'react';
-import { useSignUp } from "@clerk/clerk-react";
-import { UserCircle2, Mail, Lock, Phone, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-// import { ref } from 'process';
-// import { useSignIn } from '@clerk/clerk-react';
 
-
-interface SignUpResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    userId: string;
-    email: string;
-  };
-}
-
-function UserSignUp() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const {isLoaded, signUp} = useSignUp();
-  const [pendingVerification, setPendingVerification] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
+const SignUpForm = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-    referralId: '',
-  });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    reset,
+  } = useForm();
 
-  const validateForm = () => {
-    if (formData.password !== formData.confirmPassword) {
-      throw new Error("Passwords don't match");
-    }
-    if (formData.password.length < 8) {
-      throw new Error("Password must be at least 8 characters long");
-    }
-    // Add more validation as needed
-  };
+  const [_error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const env = import.meta.env.VITE_SERVER_URI;
 
-    console.log("Form Data:", formData); // Debugging step
-
-    try {
-
-      // Validate form before submission
-      validateForm();
-      if (!isLoaded) return;
+  const onSubmit = async (data: any) => {
+    console.log('Form Data:', data);
 
     setIsLoading(true);
-    setError(null);
-    setSuccess(null);
-
-    console.log("Sending firstName:", formData.firstName);
-    console.log("Sending lastName:", formData.lastName);
-
-    // 1️⃣ Clerk pe user create karo
-    await signUp.create({
-      emailAddress: formData.email,
-      password: formData.password,
-      firstName : formData.firstName,
-      lastName: formData.lastName,
-      phoneNumber: formData.phone,
-      username: formData.referralId,
-    });
-
-    // 2️⃣ OTP send karo
-    await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-
-    setPendingVerification(true);
-    setSuccess("OTP sent to your email. Please enter the code.");
-
-      // API call
-      const response = await fetch(`${process.env.BASE_URL}/api/webhook`, {
+    try {
+      const response = await fetch(`${env}/api/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          password: formData.password,
-          referralId : formData.referralId
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          password: data.password,
+          phone: data.phone,
+          referralId: "", // optional
         }),
       });
 
-      const data: SignUpResponse = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || 'Signup failed');
+        const error = await response.json();
+        setError(error.message || "Something went wrong");
+        setIsLoading(false);
+        return;
       }
 
-      // Handle successful signup
-      setSuccess('Account created successfully! Please check your email for verification.');
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        password: '',
-        confirmPassword: '',
-        referralId: '',
-      });
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      const responseData = await response.json();
+      console.log(responseData);
+      alert('Sign up successful!');
+      reset();
+      navigate("/verify-user");
+    } catch (err: any) {
+      console.error(err);
+      setError("An error occurred during signup.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleSignup = async () => {
-    if (!isLoaded) return;
-    await signUp.authenticateWithRedirect({
-      strategy: "oauth_google",
-      redirectUrl: "/oauth-callback",
-      redirectUrlComplete: "/dashboard",
-    });
-  };
+  const password = watch('password');
 
-  const handleFacebookSignup = async () => {
-    if (!isLoaded) return;
-    try {
-        await signUp.authenticateWithRedirect({
-            strategy: "oauth_facebook",
-            redirectUrl: "/oauth-callback",
-            redirectUrlComplete: "/dashboard",
-        });
-    } catch (error) {
-        console.error("Facebook Signup Error:", error);
-    }
-};
-
-  const handleVerifyOTP = async () => {
-    try {
-      if (!isLoaded) return;
-  
-      setIsLoading(true);
-      setError(null);
-      setSuccess(null);
-  
-      // 3️⃣ OTP verify karo
-      const completeSignUp = await signUp.attemptEmailAddressVerification({
-        code: otpCode,
-      });
-  
-      if (completeSignUp.status === "complete") {
-        setSuccess("Account created successfully! You can now log in.");
-
-      // ✅ 2 second delay ke baad redirect karein
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 2000);
-      
-        setPendingVerification(false);
-        setFormData({ ...formData, email: "", password: "", confirmPassword: "" });
-      } else {
-        setError("Invalid OTP. Please try again.");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid verification code.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-//   const handleOAuthLogin = async (provider: "oauth_google" | "oauth_facebook") => {
-//     try {
-//         setIsLoading(true);
-//         setError(null);
-//         setSuccess(null);
-
-//         if (!signIn) {
-//             throw new Error("Sign-in resource is not initialized. Please try again.");
-//         }
-
-//         await signIn.authenticateWithRedirect({
-//           strategy: provider,
-//           redirectUrl: "/dashboard",
-//           redirectUrlComplete: '/dashboard'
-//         });
-
-//         setSuccess("Redirecting to OAuth provider...");
-//     } catch (err) {
-//         setError(err instanceof Error ? err.message : "OAuth login error. Please try again.");
-//     } finally {
-//         setIsLoading(false);
-//     }
-// };
-
-
-  
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error and success messages when user starts typing
-    setError(null);
-    setSuccess(null);
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-600 to-blue-500 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8 my-8">
-        {/* Header */}
-        <div className="text-center space-y-2 mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Join Our Network</h1>
-          <p className="text-gray-500">Create your account and start your journey to success</p>
-        </div>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="max-w-md mx-auto p-6 border rounded shadow-md"
+    >
+      <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
 
-        {/* Error and Success Messages */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600">{error}</p>
-          </div>
-        )}
-        {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-600">{success}</p>
-          </div>
-        )}
-
-        {/* Form */}
-        {!pendingVerification ? (
-          <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name Fields - Grid Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* First Name */}
-            <div className="space-y-2">
-              <label htmlFor="firstName" className="text-sm font-medium text-gray-700 block">
-                First Name
-              </label>
-              <div className="relative">
-                <UserCircle2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
-                  placeholder="Enter your first name"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            {/* Last Name */}
-            <div className="space-y-2">
-              <label htmlFor="lastName" className="text-sm font-medium text-gray-700 block">
-                Last Name
-              </label>
-              <div className="relative">
-                <UserCircle2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
-                  placeholder="Enter your last name"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Email */}
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700 block">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
-                  placeholder="Enter your email"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            {/* Phone */}
-            <div className="space-y-2">
-              <label htmlFor="phone" className="text-sm font-medium text-gray-700 block">
-                Phone Number
-              </label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
-                  placeholder="Enter your phone number"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Password Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Password */}
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-gray-700 block">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
-                  placeholder="Create a password"
-                  required
-                  disabled={isLoading}
-                  minLength={8}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  disabled={isLoading}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Confirm Password */}
-            <div className="space-y-2">
-              <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 block">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
-                  placeholder="Confirm your password"
-                  required
-                  disabled={isLoading}
-                  minLength={8}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Terms and Conditions */}
-          <div className="flex items-start space-x-2">
-            <input
-              type="checkbox"
-              id="terms"
-              required
-              disabled={isLoading}
-              className="mt-1 h-4 w-4 text-emerald-500 focus:ring-emerald-500 border-gray-300 rounded"
-            />
-            <label htmlFor="terms" className="text-sm text-gray-600">
-              I agree to the{' '}
-              <a href="#" className="text-emerald-600 hover:text-emerald-500">
-                Terms and Conditions
-              </a>
-              {' '}and{' '}
-              <a href="#" className="text-emerald-600 hover:text-emerald-500">
-                Privacy Policy
-              </a>
-            </label>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full bg-emerald-600 text-white py-3 px-4 rounded-lg hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-300 focus:outline-none transition-colors duration-200 flex items-center justify-center space-x-2 font-medium ${
-              isLoading ? 'opacity-75 cursor-not-allowed' : ''
-            }`}
-          >
-            <span>{isLoading ? 'Creating Account...' : 'Create Account'}</span>
-            <ArrowRight className="h-5 w-5" />
-          </button>
-
-          {/* Social Login Buttons */}
-        <div className="flex flex-col gap-4">
-          <button
-            onClick={handleGoogleSignup}
-            className="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center space-x-2 font-medium"
-            // disabled={isLoading}
-          >
-            <span>Sign Up with Google</span>
-          </button>
-          <button
-            onClick={handleFacebookSignup}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 font-medium"
-            // disabled={isLoading}
-          >
-            <span>Sign Up with Facebook</span>
-          </button>
-        </div>
-
-        {/* Login Link */}
-        <p className="text-center text-sm text-gray-600 mt-6">
-          Already have an account?{' '}
-          <a href="/login" className="text-emerald-600 hover:text-emerald-500 font-medium">
-            Sign in here
-          </a>
-        </p>
-        </form>
-        )
-        : (
-          <form onSubmit={handleVerifyOTP} className="space-y-4">
-            <input
-              type="text"
-              placeholder="Verification Code"
-              className="w-full border p-3 rounded"
-              onChange={(e) => setOtpCode(e.target.value)}
-              required
-            />
-            <button
-              type="submit"
-              className="w-full bg-green-600 text-white p-3 rounded"
-            >
-              Verify Email
-            </button>
-          </form>
-        )}
-        
+      {/* FIRST NAME */}
+      <div className="mb-4">
+        <label className="block mb-1">First Name</label>
+        <input
+          type="text"
+          {...register('firstName', { required: 'First name is required' })}
+          className="w-full border p-2 rounded"
+        />
+        {errors.firstName && <p className="text-red-500 text-sm">{`${errors.firstName.message}`}</p>}
       </div>
-    </div>
-  );
-}
 
-export default UserSignUp;
+      {/* LAST NAME */}
+      <div className="mb-4">
+        <label className="block mb-1">Last Name</label>
+        <input
+          type="text"
+          {...register('lastName', { required: 'Last name is required' })}
+          className="w-full border p-2 rounded"
+        />
+        {errors.lastName && <p className="text-red-500 text-sm">{`${errors.lastName.message}`}</p>}
+      </div>
+
+      {/* PHONE */}
+      <div className="mb-4">
+        <label className="block mb-1">Phone</label>
+        <input
+          type="number"
+          {...register('phone', { required: 'Phone Number is required' })}
+          className="w-full border p-2 rounded"
+        />
+        {errors.phone && <p className="text-red-500 text-sm">{`${errors.phone.message}`}</p>}
+      </div>
+
+      {/* EMAIL */}
+      <div className="mb-4">
+        <label className="block mb-1">Email</label>
+        <input
+          type="email"
+          {...register('email', {
+            required: 'Email is required',
+            pattern: {
+              value: /^\S+@\S+$/i,
+              message: 'Invalid email address',
+            },
+          })}
+          className="w-full border p-2 rounded"
+        />
+        {errors.email && <p className="text-red-500 text-sm">{`${errors.email.message}`}</p>}
+      </div>
+
+      {/* PASSWORD */}
+      <div className="mb-4">
+        <label className="block mb-1">Password</label>
+        <input
+          type="password"
+          {...register('password', {
+            required: 'Password is required',
+            minLength: {
+              value: 6,
+              message: 'Password must be at least 6 characters',
+            },
+          })}
+          className="w-full border p-2 rounded"
+        />
+        {errors.password && <p className="text-red-500 text-sm">{`${errors.password.message}`}</p>}
+      </div>
+
+      {/* CONFIRM PASSWORD */}
+      <div className="mb-4">
+        <label className="block mb-1">Confirm Password</label>
+        <input
+          type="password"
+          {...register('confirmPassword', {
+            required: 'Confirm password is required',
+            validate: (value) =>
+              value === password || 'Passwords do not match',
+          })}
+          className="w-full border p-2 rounded"
+        />
+        {errors.confirmPassword && (
+          <p className="text-red-500 text-sm">{`${errors.confirmPassword.message}`}</p>
+        )}
+      </div>
+
+      {/* SHOW BACKEND ERROR */}
+      {_error && (
+        <div className="text-red-500 text-sm mb-4">
+          {_error}
+        </div>
+      )}
+
+      <button
+        type="submit"
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+      >
+        Sign Up
+      </button>
+    </form>
+  );
+};
+
+export default SignUpForm;

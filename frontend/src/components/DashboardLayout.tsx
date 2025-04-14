@@ -2,7 +2,6 @@ import { Outlet } from "react-router-dom";
 import DashboardSidebar from "./DashboardSidebar";
 import DashboardNavbar from "./DashboardNavbar";
 import { useEffect } from "react";
-import { useUser } from '@clerk/clerk-react';
 
 const DashboardLayout = () => {
 
@@ -11,25 +10,23 @@ const DashboardLayout = () => {
   }, []);
 
   
-  const {user} = useUser();
 
-  console.log(user)
 
-  const fetchData = async () => {
-    try {
-      await fetch("/api/signup", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          // Add your data here
-        })
-      });
-    } catch (error: unknown) {
-      console.error('Error:', error);
-    }
-  };
+  // const fetchData = async () => {
+  //   try {
+  //     await fetch("/api/signup", {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({
+  //         // Add your data here
+  //       })
+  //     });
+  //   } catch (error: unknown) {
+  //     console.error('Error:', error);
+  //   }
+  // };
 
 
   return (

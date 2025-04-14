@@ -1,3 +1,4 @@
+import { Verification } from "@clerk/clerk-sdk-node";
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
@@ -16,6 +17,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       select: false, 
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
     phone : {
       type: String,
@@ -39,7 +44,9 @@ const userSchema = new mongoose.Schema(
     referralId: {
       type: String,
       unique: true,
-      index : true
+      index : true,
+      sparse: true // only creates index on non-null values
+
     },
     referredBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -79,6 +86,26 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+    VerifcationToken: {
+      type: String,
+      required: false,
+    },
+    VerificationTokenExpiresAt: {
+      type: Date,
+      required: true,
+    },
+    lastLogin: {
+      type: Date,
+      required: false,
+    },
+    resetPasswordToken: {
+      type: String,
+      required: false,
+    },
+    resetPasswordExpiresAt: {
+      type: Date,
+      required: false,
+    },
   },
   { timestamps: true }
 );

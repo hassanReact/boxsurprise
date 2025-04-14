@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLogout } from "../hooks/useLogout"; // Ensure correct path
-import { Bell, User, Menu, X } from 'lucide-react';
-import { useAuth, useUser } from '@clerk/clerk-react';
+// import { useLogout } from "../hooks/useLogout"; // Ensure correct path
+import { Bell, Menu, X } from 'lucide-react';
+import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
+// import { useAuth, useUser } from '@clerk/clerk-react';
 
 interface NavbarProps {
   onLogout: () => void;
   onToggleSidebar: () => void;
   isSidebarOpen: boolean;
 }
+
 
 const Navbar: React.FC<NavbarProps> = ({ 
   onToggleSidebar, 
@@ -17,10 +19,11 @@ const Navbar: React.FC<NavbarProps> = ({
   const [showNotifications, setShowNotifications] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
-  const logout = useLogout();
+  // const logout = useLogout();
 
-  const {isSignedIn} = useAuth()
-  const {user} = useUser()
+  const {logout } = useKindeAuth()
+  // const {isSignedIn} = useAuth()
+  // const {user} = useUser()
   
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -49,12 +52,12 @@ const Navbar: React.FC<NavbarProps> = ({
           {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
         <div className="text-base md:text-xl font-semibold text-gray-800 truncate">
-          Welcome back, {isSignedIn ? user?.fullName : 'Guest'}!
+          Welcome back,!
         </div>
       </div>
       
       <div className="flex items-center space-x-2 md:space-x-4">
-        {isSignedIn && (
+        {/* {isSignedIn && ( */}
           <div className="relative" ref={notificationRef}>
             <Bell 
               className="text-gray-500 cursor-pointer hover:text-indigo-600 transition-colors" 
@@ -90,7 +93,7 @@ const Navbar: React.FC<NavbarProps> = ({
               </div>
             )}
           </div>
-        )}
+        {/* )} */}
         
         <div className="relative" ref={profileRef}>
           <div 
@@ -100,11 +103,11 @@ const Navbar: React.FC<NavbarProps> = ({
               setShowNotifications(false);
             }}
           >
-            {isSignedIn && user?.imageUrl ? (
-              <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover rounded-full" />
+            {/* {isSignedIn && user?.imageUrl ? ( */}
+              {/* <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover rounded-full" />
             ) : (
               <User size={18} className="text-indigo-600" />
-            )}
+            )} */}
           </div>
           {showProfileMenu && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
@@ -116,8 +119,8 @@ const Navbar: React.FC<NavbarProps> = ({
               </a>
               <div className="border-t border-gray-100"></div>
               <button 
+                onClick={() => logout()}
                 className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                onClick={logout}
               >
                 Sign out
               </button>

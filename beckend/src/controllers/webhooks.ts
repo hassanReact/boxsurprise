@@ -24,12 +24,12 @@ export const clerkWebHook = async (req: Request, res : Response) => {
         switch (type) {
             case 'user.created':
                 const userData = {
+                    _id: data.id,
                     email: data.email_addresses[0]?.email_address || "",
                     name: `${data.first_name} ${data.last_name}`.trim(),
                     image: data.image_url || "",
                     ...(data.referralId?.trim() === "" || !data.referralId ? { referralId: generatedReferralId, RootUser : true } : ""),
-                    password: hashedPassword,
-                    phone : data.phone
+                    password: hashedPassword
                 };
         
                 await User.create(userData);

@@ -1,27 +1,30 @@
-
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import { ChevronDown, Menu, X } from "lucide-react"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { ChevronDown, Menu, X } from "lucide-react";
+import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
 
 const Navbar: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const [aboutSubmenuOpen, setAboutSubmenuOpen] = useState(false)
-  const [plansSubmenuOpen, setPlansSubmenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [aboutSubmenuOpen, setAboutSubmenuOpen] = useState(false);
+  const [plansSubmenuOpen, setPlansSubmenuOpen] = useState(false);
+
+  // Get login status and functions from Kinde Auth
+  const { login, register, user, logout } = useKindeAuth();
 
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
-        setScrolled(true)
+        setScrolled(true);
       } else {
-        setScrolled(false)
+        setScrolled(false);
       }
-    }
+    };
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <header
@@ -78,15 +81,30 @@ const Navbar: React.FC = () => {
             <Link to="/blogs" className="text-gray-800 hover:text-blue-600 font-medium">
               Blogs
             </Link>
-            <Link to="/login" className="text-gray-800 hover:text-blue-600 font-medium">
-              Login
-            </Link>
-            <Link
-              to="/register"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors duration-100"
-            >
-              Register
-            </Link>
+            {/* Show Login/Register only if user is not logged in */}
+            {!user ? (
+              <>
+                <button onClick={() => login()} className="text-gray-800 hover:text-blue-600 font-medium">
+                  Login
+                </button>
+                <button
+                  onClick={() => register()}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors duration-100"
+                >
+                  Register
+                </button>
+              </>
+            ) : (
+              <>
+              <span className="text-gray-800 font-medium">Welcome, {user.givenName}</span>
+              <button
+                  onClick={() => logout()}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors duration-100"
+                >
+                  Logout
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -149,21 +167,26 @@ const Navbar: React.FC = () => {
             <Link to="/blogs" className="block py-2 text-gray-800 hover:text-blue-600 font-medium">
               Blogs
             </Link>
-            <Link to="/login" className="block py-2 text-gray-800 hover:text-blue-600 font-medium">
-              Login
-            </Link>
-            <Link
-              to="/register"
-              className="block py-2 bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-md transition-colors duration-100 w-full text-center mt-2"
-            >
-              Register
-            </Link>
+            {!user ? (
+              <>
+                <button onClick={() => login()} className="block py-2 text-gray-800 hover:text-blue-600 font-medium">
+                  Login
+                </button>
+                <button
+                  onClick={() => register()}
+                  className="block py-2 bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-md transition-colors duration-100 w-full text-center mt-2"
+                >
+                  Register
+                </button>
+              </>
+            ) : (
+              <span className="block py-2 text-gray-800 font-medium">Welcome, {user.givenName}</span>
+            )}
           </div>
         )}
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Navbar
-
+export default Navbar;

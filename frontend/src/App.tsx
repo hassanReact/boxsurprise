@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -19,65 +19,41 @@ import Earnings from "./pages/UserEarnings";
 import Withdrawals from "./pages/UserWithdrawls";
 import Posts from "./pages/UserPosts";
 import Settings from "./pages/UserSettings";
-import { useAuth } from "@clerk/clerk-react";
 // import { useNavigate } from "react-router-dom";
-import OAuthCallback from "./components/OAuthCallback";
+// import OAuthCallback from "./components/OAuthCallback";
 import DashboardLayout from "./components/DashboardLayout";
+import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
+import VerifyUser from "./components/VerifyUser";
 
-type Props = {
-  onLogin: (role: string) => void;
-};
 
-const AuthHandler: React.FC<{ setIsLoggedIn: (val: boolean) => void }> = ({
-  setIsLoggedIn,
-}) => {
-  const { isSignedIn, isLoaded } = useAuth();
-  // const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isLoaded) {
-      setIsLoggedIn(isSignedIn || false);
-    }
-  }, [isSignedIn, isLoaded, setIsLoggedIn]);
 
-  return null;
-};
+const App: React.FC = () => {
+  const {isAuthenticated} = useKindeAuth()
+  const [userRole, _setUserRole] = useState<string>("user"); // 'user' or 'admin'
 
-const App: React.FC<Props> = ({ onLogin }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [userRole, setUserRole] = useState<string>("user"); // 'user' or 'admin'
-
-  const handleLogin = (role: string) => {
-    setIsLoggedIn(true);
-    setUserRole(role);
-    onLogin(role); // If `onLogin` is needed
-  };
-
-  // const handleLogout = () => {
-  //   setIsLoggedIn(false);
-  //   setUserRole("user");
-  // };
+  const authenticationRoute = window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname === "/verify-user";
 
   return (
     <Router>
-      <AuthHandler setIsLoggedIn={setIsLoggedIn} />
-      {!isLoggedIn ? (
+      {!isAuthenticated ? (
         <div className="flex flex-col min-h-screen">
-          <Navbar />
+          {authenticationRoute ? <></>  :   <Navbar />}
           <main className="flex-grow pt-20">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutPage />} />
-              <Route path="/oauth-callback" element={<OAuthCallback />} />
               <Route
                 path="/login"
-                element={<UserLogin onLogin={handleLogin} />}
+                element={<UserLogin />}
               />
               <Route path="/register" element={<UserSignUp />} />
+              <Route path="/verify-user" element={<VerifyUser />} />
+              {/* <Route path="/forgot-password/:token" element={} /> */}
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </main>
-          <Footer />
+         {authenticationRoute ?  <></> : <Footer />}
         </div>
       ) : (
         <div className="flex h-screen bg-gray-100">
