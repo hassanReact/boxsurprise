@@ -1,5 +1,5 @@
-import React from 'react';
-import { DollarSign, TrendingUp, Calendar, ArrowUpRight } from 'lucide-react';
+import React from "react";
+import { TrendingUp, Calendar, ArrowUpRight } from "lucide-react";
 
 interface EarningsSummary {
   totalEarnings: string;
@@ -18,31 +18,31 @@ interface EarningsHistory {
 const EarningsBreakdown: React.FC = () => {
   // This would come from your API/database
   const summary: EarningsSummary = {
-    totalEarnings: "$5,240.00",
-    monthlyEarnings: "$850.00",
-    pendingCommissions: "$320.00",
-    lastPayout: "$420.00"
+    totalEarnings: "Rs: 5,24.00",
+    monthlyEarnings: "Rs: 850.00",
+    pendingCommissions: "Rs: 320.00",
+    lastPayout: "Rs: 420.00",
   };
 
   const earningsHistory: EarningsHistory[] = [
     {
       date: "2024-03-15",
-      amount: "$150.00",
+      amount: "Rs: 150.00",
       type: "Direct Referral",
-      status: "Paid"
+      status: "Paid",
     },
     {
       date: "2024-03-14",
-      amount: "$75.00",
+      amount: "Rs: 75.00",
       type: "Level 2 Commission",
-      status: "Paid"
+      status: "Paid",
     },
     {
       date: "2024-03-13",
-      amount: "$95.00",
+      amount: "Rs: 95.00",
       type: "Direct Referral",
-      status: "Pending"
-    }
+      status: "Pending",
+    },
   ];
 
   return (
@@ -53,10 +53,28 @@ const EarningsBreakdown: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Total Earnings</p>
-              <p className="text-2xl font-bold text-gray-900">{summary.totalEarnings}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {summary.totalEarnings}
+              </p>
             </div>
-            <div className="bg-green-100 p-3 rounded-full">
-              <DollarSign className="h-6 w-6 text-green-600" />
+            <div className="bg-green-600 p-3 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <text
+                  x="4"
+                  y="18"
+                  fontFamily="Arial, sans-serif"
+                  fontSize="18"
+                  fill="#1b1b1b"
+                >
+                  ₨
+                </text>
+              </svg>
             </div>
           </div>
         </div>
@@ -65,7 +83,9 @@ const EarningsBreakdown: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Monthly Earnings</p>
-              <p className="text-2xl font-bold text-gray-900">{summary.monthlyEarnings}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {summary.monthlyEarnings}
+              </p>
             </div>
             <div className="bg-blue-100 p-3 rounded-full">
               <TrendingUp className="h-6 w-6 text-blue-600" />
@@ -77,7 +97,9 @@ const EarningsBreakdown: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Pending Commissions</p>
-              <p className="text-2xl font-bold text-gray-900">{summary.pendingCommissions}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {summary.pendingCommissions}
+              </p>
             </div>
             <div className="bg-yellow-100 p-3 rounded-full">
               <Calendar className="h-6 w-6 text-yellow-600" />
@@ -89,7 +111,9 @@ const EarningsBreakdown: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Last Payout</p>
-              <p className="text-2xl font-bold text-gray-900">{summary.lastPayout}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {summary.lastPayout}
+              </p>
             </div>
             <div className="bg-purple-100 p-3 rounded-full">
               <ArrowUpRight className="h-6 w-6 text-purple-600" />
@@ -101,7 +125,9 @@ const EarningsBreakdown: React.FC = () => {
       {/* Earnings History Table */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Earnings History</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Earnings History
+          </h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -136,9 +162,9 @@ const EarningsBreakdown: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        earning.status === 'Paid'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
+                        earning.status === "Paid"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
                       }`}
                     >
                       {earning.status}

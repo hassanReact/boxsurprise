@@ -23,10 +23,14 @@ import { useAuth } from "@clerk/clerk-react";
 // import { useNavigate } from "react-router-dom";
 import OAuthCallback from "./components/OAuthCallback";
 import DashboardLayout from "./components/DashboardLayout";
+import {GoogleOAuthProvider} from '@react-oauth/google';
 
 type Props = {
   onLogin: (role: string) => void;
 };
+
+// 🛠 Dev Mode Toggle
+// const devMode = true;
 
 const AuthHandler: React.FC<{ setIsLoggedIn: (val: boolean) => void }> = ({
   setIsLoggedIn,
@@ -44,6 +48,15 @@ const AuthHandler: React.FC<{ setIsLoggedIn: (val: boolean) => void }> = ({
 };
 
 const App: React.FC<Props> = ({ onLogin }) => {
+
+  const GoogleAuthWrapper = () =>{
+    return (
+      <GoogleOAuthProvider clientId="474677330361-lk4gqk9852kprlal663mt8tqid851q9d.apps.googleusercontent.com">
+        <UserLogin onLogin={handleLogin}></UserLogin>
+      </GoogleOAuthProvider>
+    );
+  }
+
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<string>("user"); // 'user' or 'admin'
 
@@ -58,10 +71,14 @@ const App: React.FC<Props> = ({ onLogin }) => {
   //   setUserRole("user");
   // };
 
+  // const showDashboard = devMode || isLoggedIn;
+
   return (
     <Router>
       <AuthHandler setIsLoggedIn={setIsLoggedIn} />
-      {!isLoggedIn ? (
+      {!isLoggedIn 
+      ? 
+      (
         <div className="flex flex-col min-h-screen">
           <Navbar />
           <main className="flex-grow pt-20">
@@ -71,7 +88,7 @@ const App: React.FC<Props> = ({ onLogin }) => {
               <Route path="/oauth-callback" element={<OAuthCallback />} />
               <Route
                 path="/login"
-                element={<UserLogin onLogin={handleLogin} />}
+                element={<GoogleAuthWrapper />}
               />
               <Route path="/register" element={<UserSignUp />} />
               <Route path="*" element={<Navigate to="/login" replace />} />
@@ -82,11 +99,11 @@ const App: React.FC<Props> = ({ onLogin }) => {
       ) : (
         <div className="flex h-screen bg-gray-100">
           <DashboardSidebar userRole={userRole} />
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col ">
             <DashboardNavbar onToggleSidebar={() => { } } isSidebarOpen={false} onLogout={function (): void {
                 throw new Error("Function not implemented.");
               } } />
-            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 lg:ml-64 ml-16">
+            <main className="flex-1 overflow-hidden bg-gray-100 p-4 lg:ml-64 ml-16">
               <Routes>
                 <Route path="/dashboard/*" element={<DashboardLayout />}>
                   <Route index element={<Dashboard />} />

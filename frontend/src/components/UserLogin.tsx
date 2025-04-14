@@ -2,10 +2,29 @@ import React, { useState } from 'react';
 import { useSignIn } from "@clerk/clerk-react";
 import { Eye, EyeOff, UserCircle2, Lock, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import {useGoogleLogin} from '@react-oauth/google';
 
 interface Props{ onLogin: (role: string) => void; }
 
 function UserLogin({onLogin}:Props) {
+
+  const responseGoogle = async  (authResult) => {
+    try {
+      if(authResult['code']){
+        
+      }
+      console.log(authResult);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const GoogleLogin = useGoogleLogin({
+    onSuccess: responseGoogle,
+    onError: responseGoogle,
+    flow: 'auth-code',
+  });
+
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -68,28 +87,30 @@ function UserLogin({onLogin}:Props) {
     }
   };
   
-  
+  const googleLogin = () =>{
 
-  const handleGoogleSignIn = async () => {
-  if (!isLoaded || !signIn) return;
-
-  try {
-    await signIn.authenticateWithRedirect({
-      strategy: "oauth_google",
-      redirectUrl: "/oauth-callback",
-      redirectUrlComplete: "/dashboard",
-    });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-    console.error("Google Sign-In Error:", err);
-
-    if (err.errors && err.errors[0]?.code === "not_found") {
-      setError("No account found. Please sign up first.");
-    } else {
-      setError("Google Sign-In failed. Try again.");
-    }
   }
-};
+
+//   const handleGoogleSignIn = async () => {
+//   if (!isLoaded || !signIn) return;
+
+//   try {
+//     await signIn.authenticateWithRedirect({
+//       strategy: "oauth_google",
+//       redirectUrl: "/oauth-callback",
+//       redirectUrlComplete: "/dashboard",
+//     });
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   } catch (err: any) {
+//     console.error("Google Sign-In Error:", err);
+
+//     if (err.errors && err.errors[0]?.code === "not_found") {
+//       setError("No account found. Please sign up first.");
+//     } else {
+//       setError("Google Sign-In failed. Try again.");
+//     }
+//   }
+// };
   
 
   const handleFacebookSignIn = async () => {
@@ -200,7 +221,7 @@ function UserLogin({onLogin}:Props) {
           {/* Google Login Button */}
         <div className="">
           <button
-            onClick={handleGoogleSignIn}
+            onClick={googleLogin}
             className="w-full bg-pink-600 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-400"
           >
             Continue with Google
