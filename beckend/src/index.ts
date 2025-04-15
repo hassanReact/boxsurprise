@@ -2,20 +2,17 @@ import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import * as Sentry from "@sentry/node";
 import dbConnect from "./config/db";
-<<<<<<< HEAD
 import authRoutes from './routes/auth.route'
 import cookieParser from "cookie-parser";
 import cors from "cors"; 
-=======
-import { signup } from "./controllers/signup";
-import { validateSignup } from "./middleware/signUpMiddleware";
-const authRouter = require("./routes/authRouter");
->>>>>>> dd81fcbaa6fe6805a2c482a26746ac4551aedab0
 
 dotenv.config();
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // or your frontend URL
+  credentials: true
+}));
 
 
 app.use(express.json()); // Middleware to parse JSON requests

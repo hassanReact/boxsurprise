@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from '../hooks';
+import { setUser } from '../features/auth/authSlice';
 
 const VerifyUser = () => {
+  const dispatch = useAppDispatch()
   const [token, setToken] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate()
@@ -19,8 +22,18 @@ const VerifyUser = () => {
         }
       );
       const data = await response.json();
+      dispatch(setUser({
+        id: data.user.id,
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        email: data.user.email,
+        phoneNumber: data.user.phone,
+        referral_id: data.user.referralId || null,
+        createdAt: data.user.createdAt,
+      }));
       setMessage(data.message);
       navigate('/dashboard')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
     } catch (error: any) {
       setMessage("Verification failed. Please try again.");
     }

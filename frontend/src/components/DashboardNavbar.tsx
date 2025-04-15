@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-// import { useLogout } from "../hooks/useLogout"; // Ensure correct path
 import { Bell, Menu, X } from 'lucide-react';
-import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
-// import { useAuth, useUser } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
+import { useAppSelector } from "../hooks";
 
 interface NavbarProps {
-  onLogout: () => void;
   onToggleSidebar: () => void;
   isSidebarOpen: boolean;
+  onLogout: () => void; // Added onLogout property
 }
-
 
 const Navbar: React.FC<NavbarProps> = ({ 
   onToggleSidebar, 
@@ -19,11 +17,11 @@ const Navbar: React.FC<NavbarProps> = ({
   const [showNotifications, setShowNotifications] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
-  // const logout = useLogout();
+  const navigate = useNavigate();
 
-  const {logout } = useKindeAuth()
-  // const {isSignedIn} = useAuth()
-  // const {user} = useUser()
+  const user = useAppSelector((state) => state.auth.user);
+  console.log(user?.firstName) // Assuming the user data is in auth.user
+  const userFirstName = user?.firstName;
   
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -34,12 +32,27 @@ const Navbar: React.FC<NavbarProps> = ({
         setShowNotifications(false);
       }
     }
-    
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleLogout = () => {
+    // Optional: Clear localStorage or cookies if you store your JWT manually
+    localStorage.removeItem("token"); // or cookies.remove('token') if using cookies
+    sessionStorage.removeItem("user"); // or cookies.remove('user') if using cookies
+    window.location.href = "/login";
+  };
+
+  const goToProfile = () => {
+    setShowProfileMenu(false);
+    navigate('/dashboard/profile'); // This goes to the settings page
+  };
+
+  const goToSettings = () => {
+    setShowProfileMenu(false);
+    navigate('/dashboard/settings'); // This goes to the settings page
+  };
 
   return (
     <header className="bg-white shadow-md h-16 flex items-center justify-between px-4 md:px-6 fixed top-0 right-0 left-0 z-30 lg:left-64 transition-all duration-300">
@@ -52,7 +65,7 @@ const Navbar: React.FC<NavbarProps> = ({
           {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
         <div className="text-base md:text-xl font-semibold text-gray-800 truncate">
-          Welcome back,!
+          Welcome back, {userFirstName}!
         </div>
       </div>
       
@@ -111,15 +124,21 @@ const Navbar: React.FC<NavbarProps> = ({
           </div>
           {showProfileMenu && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-              <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <button
+                onClick={goToProfile}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
                 Profile
-              </a>
-              <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              </button>
+              <button
+                onClick={goToSettings}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
                 Settings
-              </a>
+              </button>
               <div className="border-t border-gray-100"></div>
-              <button 
-                onClick={() => logout()}
+              <button
+                onClick={handleLogout}
                 className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
               >
                 Sign out

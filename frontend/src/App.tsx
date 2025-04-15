@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -19,21 +19,23 @@ import Earnings from "./pages/UserEarnings";
 import Withdrawals from "./pages/UserWithdrawls";
 import Posts from "./pages/UserPosts";
 import Settings from "./pages/UserSettings";
-// import { useNavigate } from "react-router-dom";
-// import OAuthCallback from "./components/OAuthCallback";
 import DashboardLayout from "./components/DashboardLayout";
 import VerifyUser from "./components/VerifyUser";
+import { useAppSelector } from "./hooks";
+import { RootState } from "./store";
+import UserProfile from "./pages/UserProfile";
 
 
 
 
 const App: React.FC = () => {
-  const [userRole, _setUserRole] = useState<string>("user"); // 'user' or 'admin'
-
-  const [isAuthenticated, _setIsAuthenticated] = useState<boolean>(false);
+  // const [userRole, _setUserRole] = useState<string>("user"); // 'user' or 'admin'
+  
+  const isAuthenticated = useAppSelector((state: RootState) => state.auth.isAuthenticated);
+  const userRole = useAppSelector((state: RootState) => state.auth.user?.role || "user");
   
   const authenticationRoute = window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname === "/verify-user";
-
+  
   // const showDashboard = devMode || isLoggedIn;
 
   return (
@@ -73,6 +75,7 @@ const App: React.FC = () => {
                   <Route path="withdrawals" element={<Withdrawals />} />
                   <Route path="posts" element={<Posts />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="profile" element={<UserProfile />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Routes>

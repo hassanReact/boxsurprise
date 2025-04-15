@@ -31,6 +31,13 @@ const Sidebar: React.FC<SidebarProps> = ({
     return location.pathname === path || location.pathname.startsWith(path);
   };
 
+  const handleLogout = () => {
+    // Optional: Clear localStorage or cookies if you store your JWT manually
+    localStorage.removeItem("token"); // or cookies.remove('token') if using cookies
+    sessionStorage.removeItem("user"); // or cookies.remove('user') if using cookies
+    window.location.href = "/login";
+  };
+
   // const isActive = (path) => {
   //   const location = useLocation();
   //   return location.pathname.startsWith(`/dashboard/${path}`);
@@ -106,9 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
             <button 
               className="mt-4 w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm text-white bg-indigo-700 rounded-md hover:bg-indigo-600 transition-all duration-200"
-              onClick={() => {
-                console.log('Logout clicked');
-              }}
+              onClick={handleLogout}
             >
               <LogOut size={16} />
               <span>Logout</span>
@@ -148,7 +153,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-2 border-t border-indigo-800 flex justify-center">
             <button 
               className="my-4 flex items-center justify-center p-3 text-white bg-indigo-700 rounded-md hover:bg-indigo-600 transition-all duration-200"
-              // onClick={logout}
+              onClick={handleLogout}
               title="Logout"
             >
               <LogOut size={16} />
