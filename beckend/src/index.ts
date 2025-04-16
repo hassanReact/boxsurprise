@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: process.env.CLIENT_URL, // Replace with your client URL
+  origin: process.env.CLIENT_URI, // Replace with your client URL
   credentials: true, // Allow credentials (cookies) to be sent
 }));
 

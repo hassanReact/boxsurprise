@@ -20,6 +20,6 @@ router.post('/reset-password/:token', resetPassword )
 
 router.get('/google', googleAuth);
 
-router.post('/update-profile', updateProfile)
+router.put('/update-profile', updateProfile)
 
 export default router
