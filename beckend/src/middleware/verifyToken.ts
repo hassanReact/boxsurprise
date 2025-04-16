@@ -9,7 +9,6 @@ export const verifyToken = asyncHandler(async (req: any, res: Response, next: Ne
 
     try {
 
-        console.log("===============> " ,token)
         if (!token) {
             res.status(401).json({
                 success: false,
