@@ -22,7 +22,7 @@ const UserProfile = () => {
 
   // This would come from your API/database
   const [profile, setProfile] = useState<UserProfile>({
-    fullName: user?.firstName || "",
+    fullName: user?.name || "",
     email: user?.email || "",
     phone: user?.phoneNumber || "",
     notifications: {

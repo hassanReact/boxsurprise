@@ -48,11 +48,14 @@ const SignInForm = () => {
       }
 
       const responseData = await response.json();
+      const { user } = responseData;
+
+      // Store token and user in localStorage
+      localStorage.setItem("user", JSON.stringify(user))
 
       dispatch(setUser({
         id: responseData.user.id,
-        firstName: responseData.user.firstName,
-        lastName: responseData.user.lastName,
+        name: responseData.user.name,
         email: responseData.user.email,
         phoneNumber: responseData.user.phone,
         referral_id: responseData.user.referralId || null,

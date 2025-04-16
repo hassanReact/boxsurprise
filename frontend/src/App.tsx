@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -21,15 +21,17 @@ import Posts from "./pages/UserPosts";
 import Settings from "./pages/UserSettings";
 import DashboardLayout from "./components/DashboardLayout";
 import VerifyUser from "./components/VerifyUser";
-import { useAppSelector } from "./hooks";
+import { useAppDispatch, useAppSelector } from "./hooks";
 import { RootState } from "./store";
 import UserProfile from "./pages/UserProfile";
+import { setUser } from "./features/auth/authSlice";
 
 
 
 
 const App: React.FC = () => {
   // const [userRole, _setUserRole] = useState<string>("user"); // 'user' or 'admin'
+  const dispatch = useAppDispatch();
   
   const isAuthenticated = useAppSelector((state: RootState) => state.auth.isAuthenticated);
   const userRole = useAppSelector((state: RootState) => state.auth.user?.role || "user");
@@ -38,12 +40,19 @@ const App: React.FC = () => {
   
   // const showDashboard = devMode || isLoggedIn;
 
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      dispatch(setUser(JSON.parse(user)));
+    }
+  }, [dispatch]);
+
   return (
     <Router>
       {!isAuthenticated ? (
         <div className="flex flex-col min-h-screen">
           {authenticationRoute ? <></>  :   <Navbar />}
-          <main className="flex-grow pt-20">
+          <main className="flex-grow">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutPage />} />

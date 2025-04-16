@@ -35,17 +35,21 @@ const Navbar: React.FC = () => {
           {/* Logo */}
           <div className="logo">
             <Link to="/" className="flex items-center h-10">
-              <img src="/BoxSurprise - Logo.png" alt="MLM Lab" className="h-38 w-43" />
+              <img src={scrolled ? "/BoxSurprise - Logo.png" : "/BoxSurprise - WhiteVersion.png"} alt="MLM Lab" className="h-38 w-43" />
             </Link>
           </div>
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-8">
-            <Link to="/" className="text-gray-800 hover:text-blue-600 font-medium">
+            <Link to="/" className={`font-medium transition duration-300 ${
+    scrolled ? "text-gray-800 hover:text-blue-600" : "text-white hover:text-blue-600"
+  }`}>
               Home
             </Link>
             <div className="relative group">
-              <button className="text-gray-800 hover:text-blue-600 font-medium flex items-center">
+              <button className={`font-medium transition duration-300 flex items-center cursor-pointer ${
+    scrolled ? "text-gray-800 hover:text-blue-600" : "text-white hover:text-blue-600"
+  }`}>
                 About
                 <ChevronDown className="h-4 w-4 ml-1" />
               </button>
@@ -62,7 +66,9 @@ const Navbar: React.FC = () => {
               </div>
             </div>
             <div className="relative group">
-              <button className="text-gray-800 hover:text-blue-600 font-medium flex items-center">
+              <button className={`font-medium transition duration-300 flex items-center cursor-pointer ${
+    scrolled ? "text-gray-800 hover:text-blue-600" : "text-white hover:text-blue-600"
+  }`}>
                 Plans
                 <ChevronDown className="h-4 w-4 ml-1" />
               </button>
@@ -78,21 +84,25 @@ const Navbar: React.FC = () => {
                 </Link>
               </div>
             </div>
-            <Link to="/blogs" className="text-gray-800 hover:text-blue-600 font-medium">
+            <Link to="/blogs" className={`font-medium transition duration-300 ${
+    scrolled ? "text-gray-800 hover:text-blue-600" : "text-white hover:text-blue-600"
+  }`}>
               Blogs
             </Link>
             {/* Show Login/Register only if user is not logged in */}
             {!user ? (
               <>
-                <button onClick={() => login()} className="text-gray-800 hover:text-blue-600 font-medium">
+                <Link to='/login' onClick={() => login()} className={`font-medium transition duration-300 ${
+    scrolled ? "text-gray-800 hover:text-blue-600" : "text-white hover:text-blue-600"
+  }`}>
                   Login
-                </button>
-                <button
+                </Link>
+                <Link to='/register'
                   onClick={() => register()}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors duration-100"
                 >
                   Register
-                </button>
+                </Link>
               </>
             ) : (
               <>

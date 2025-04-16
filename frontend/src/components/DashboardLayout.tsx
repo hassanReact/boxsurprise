@@ -1,13 +1,13 @@
 import { Outlet } from "react-router-dom";
 import DashboardSidebar from "./DashboardSidebar";
 import DashboardNavbar from "./DashboardNavbar";
-import { useEffect } from "react";
+// import { useEffect } from "react";
 
 const DashboardLayout = () => {
 
-  useEffect(() => {
-    // fetchData();
-  }, []);
+  // useEffect(() => {
+  //   // fetchData();
+  // }, []);
 
   
 

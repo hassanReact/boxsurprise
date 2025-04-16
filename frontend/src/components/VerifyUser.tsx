@@ -24,8 +24,7 @@ const VerifyUser = () => {
       const data = await response.json();
       dispatch(setUser({
         id: data.user.id,
-        firstName: data.user.firstName,
-        lastName: data.user.lastName,
+        name: data.user.name,
         email: data.user.email,
         phoneNumber: data.user.phone,
         referral_id: data.user.referralId || null,

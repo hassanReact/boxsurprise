@@ -49,7 +49,7 @@ const Dashboard: React.FC = () => {
 
   return (
     // Using the exact same structure as Earnings component to ensure consistent scrolling
-    <div className="space-y-6 mt-14">
+    <div className="space-y-6 my-14">
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
           Dashboard

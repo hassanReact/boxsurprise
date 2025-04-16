@@ -342,7 +342,7 @@ const ReferralTree: React.FC = () => {
   const referralCounts = countReferralsByTier();
 
   return (
-    <div className="container mx-auto py-4 md:py-6 px-2 md:px-4 lg:px-6">
+    <div className="container mx-auto py-4 mt-8 md:py-6 px-2 md:px-4 lg:px-6">
       <div className="mb-4 md:mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Your Referral Network</h1>
         <p className="text-sm md:text-base text-gray-600">View your downline structure with color-coded tiers</p>

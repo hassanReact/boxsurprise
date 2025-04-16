@@ -2,14 +2,14 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface UserType {
   id: string,
-  firstName: string,
-  lastName: string,
+  name: string,
   email: string,
   createdAt:string ,
   phoneNumber: string |null,
   referral_id: string | null;
   role?: string;
   isVerified?: boolean;
+  imageUrl?: string | null;
 }
 
 const initialState: {

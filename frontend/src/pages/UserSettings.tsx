@@ -28,7 +28,7 @@ const UserSettings: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 mt-16">
+    <div className="space-y-6 my-16">
       {/* Notification Settings */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
