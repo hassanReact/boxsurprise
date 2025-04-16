@@ -125,3 +125,43 @@ export const WELCOME_EMAIL_TEMPLATE = `
 </body>
 </html>
 `;
+
+
+export const INVITATION_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>You’ve Been Invited to Join Box Surprise</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(to right, #2b01c5, #2b01c5); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">You’re Invited!</h1>
+  </div>
+  <div style="background-color: #fefefe; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hi <strong>{recipientName}</strong>,</p>
+    <p><strong>{inviterName}</strong> has invited you to join <strong>Box Surprise</strong> — a fun and rewarding surprise box platform!</p>
+    <p>When you sign up using the referral link below, you’ll get a special bonus, and <strong>{inviterName}</strong> will earn rewards too!</p>
+
+    <p style="text-align: center;">
+      <a href="{referralLink}" style="background-color: #2b01c5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Join Now</a>
+    </p>
+
+    <p>🎁 <strong>How it works:</strong></p>
+    <ul>
+      <li>Click the referral link above.</li>
+      <li>Sign up and explore the surprises!</li>
+      <li>You both get rewarded for the referral!</li>
+    </ul>
+
+    <p>Don't miss the fun — start your Box Surprise journey today!</p>
+
+    <p>Cheers!<br><strong>The Box Surprise Team 🎁</strong></p>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #999; font-size: 0.8em;">
+    <p>This is an automated message from Box Surprise. Please do not reply.</p>
+  </div>
+</body>
+</html>
+`;

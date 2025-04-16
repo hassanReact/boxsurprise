@@ -1,4 +1,4 @@
-import { PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE, VERIFICATION_EMAIL_TEMPLATE, WELCOME_EMAIL_TEMPLATE } from "./email.template"
+import { INVITATION_EMAIL_TEMPLATE, PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE, VERIFICATION_EMAIL_TEMPLATE, WELCOME_EMAIL_TEMPLATE } from "./email.template"
 import nodemailer from "nodemailer"
 
 
@@ -121,3 +121,52 @@ export const sendResetPasswordEmail = async (email: string) => {
             
         }
 }
+
+function fillTemplate(template: string, data: Record<string, string>): string {
+  return template.replace(/\{(\w+)\}/g, (match, key) => {
+    return data[key] || match;
+  });
+}
+
+export const sendInvitationEmail = async (
+  recipientEmail: string,
+  invitationLink: string,
+  inviterName: string,
+  recipientName: string
+): Promise<void> => {
+  try {
+    // Create a transporter object using SMTP transport
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: process.env.GMAIL_FROM,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+
+    // Prepare the dynamic data for the template
+    const templateData = {
+      referralLink: invitationLink,
+      inviterName: inviterName,
+      recipientName: recipientName,
+    };
+
+    // Generate the final HTML content by replacing placeholders
+    const htmlContent = fillTemplate(INVITATION_EMAIL_TEMPLATE, templateData);
+
+    // Define the email options
+    const mailOptions = {
+      from: process.env.GMAIL_FROM,
+      to: recipientEmail,
+      subject: `${inviterName} has invited you to join Box Surprise!`,
+      html: htmlContent,
+    };
+
+    // Send the email
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Invitation email sent successfully:', info.response);
+  } catch (error) {
+    console.error('Error sending invitation email:', error);
+    throw new Error('Failed to send invitation email.');
+  }
+};

@@ -19,43 +19,72 @@ import Earnings from "./pages/UserEarnings";
 import Withdrawals from "./pages/UserWithdrawls";
 import Posts from "./pages/UserPosts";
 import Settings from "./pages/UserSettings";
-// import { useNavigate } from "react-router-dom";
-// import OAuthCallback from "./components/OAuthCallback";
 import DashboardLayout from "./components/DashboardLayout";
-import VerifyUser from "./components/VerifyUser";
+import {GoogleOAuthProvider} from '@react-oauth/google';
+
+type Props = {
+  onLogin: (role: string) => void;
+};
+
+// 🛠 Dev Mode Toggle
+// const devMode = true;
+
+const AuthHandler: React.FC<{ setIsLoggedIn: (val: boolean) => void }> = ({
+}) => {
+  // const navigate = useNavigate();
 
 
+  return null;
+};
 
+const App: React.FC<Props> = ({ onLogin }) => {
 
-const App: React.FC = () => {
-  const [userRole, _setUserRole] = useState<string>("user"); // 'user' or 'admin'
+  const GoogleAuthWrapper = () =>{
+    return (
+      <GoogleOAuthProvider clientId={`474677330361-lk4gqk9852kprlal663mt8tqid851q9d.apps.googleusercontent.com`}>
+        <UserLogin onLogin={handleLogin}></UserLogin>
+      </GoogleOAuthProvider>
+    );
+  }
 
-  const [isAuthenticated, _setIsAuthenticated] = useState<boolean>(false);
-  
-  const authenticationRoute = window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname === "/verify-user";
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [userRole, setUserRole] = useState<string>("user"); // 'user' or 'admin'
+
+  const handleLogin = (role: string) => {
+    setIsLoggedIn(true);
+    setUserRole(role);
+    onLogin(role); // If `onLogin` is needed
+  };
+
+  // const handleLogout = () => {
+  //   setIsLoggedIn(false);
+  //   setUserRole("user");
+  // };
 
   // const showDashboard = devMode || isLoggedIn;
 
   return (
     <Router>
-      {!isAuthenticated ? (
+      <AuthHandler setIsLoggedIn={setIsLoggedIn} />
+      {!isLoggedIn 
+      ? 
+      (
         <div className="flex flex-col min-h-screen">
-          {authenticationRoute ? <></>  :   <Navbar />}
+          <Navbar />
           <main className="flex-grow pt-20">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutPage />} />
+              {/* <Route path="/oauth-callback" element={<OAuthCallback />} /> */}
               <Route
                 path="/login"
-                element={<UserLogin />}
+                element={<GoogleAuthWrapper />}
               />
               <Route path="/register" element={<UserSignUp />} />
-              <Route path="/verify-user" element={<VerifyUser />} />
-              {/* <Route path="/forgot-password/:token" element={} /> */}
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </main>
-         {authenticationRoute ?  <></> : <Footer />}
+          <Footer />
         </div>
       ) : (
         <div className="flex h-screen bg-gray-100">
