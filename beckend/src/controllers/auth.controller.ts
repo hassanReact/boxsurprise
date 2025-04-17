@@ -36,12 +36,13 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const VerificationToken = Math.floor(100000 + Math.random() * 900000).toString();
 
+
     const user = await User.create({
         name: `${firstName} ${lastName}`,
         email,
         phone,
         password: hashedPassword,
-        VerifcationToken: VerificationToken,
+        VerificationToken: VerificationToken,
         VerificationTokenExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
         referralId: !referralId?.trim() ? generatedReferralId : referralId.trim(),
         ...(referralId?.trim() === ""
@@ -52,27 +53,15 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
 
     await user.save()
 
-    generateTokenAndSetCookie(res, user._id.toString());
+    // generateTokenAndSetCookie(res, user._id.toString());
     await sendVerificationEmail(user.email, VerificationToken);
 
     res.status(201).json({
         success: true,
         message: "User Created Successfully",
         user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            referralId: user.referralId,
-            isVerified: user.isVerified,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-            earnings: user.earnings,
-            directReferrals: user.directReferrals,
-            referredBy: user.referredBy,
-            VerificationToken: user.VerificationToken,
-            VerificationTokenExpiresAt: user.VerificationTokenExpiresAt,
-            image: user.image,
+           ...user.toObject(),
+           password: undefined
         }
     });
 });
