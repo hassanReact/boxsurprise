@@ -18,6 +18,7 @@ interface UserProfile {
     type: string;
     last4: string;
   }[];
+  
 }
 
 const UserProfile = () => {
