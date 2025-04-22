@@ -42,7 +42,7 @@ const SignInForm = () => {
 
       if (!response.ok) {
         const error = await response.json();
-        setError(error.message || "Invalid email or password");
+        setError(error || "Invalid email or password");
         setIsLoading(false);
         return;
       }

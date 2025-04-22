@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { sendInvitationEmail, sendVerificationEmail } from "../mailtrap/email";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie";
 import bcrypt from "bcrypt";
+import { getReferralTree } from "../utils/getReferralTree";
 
 
 export const invitationForReferral = asyncHandler(async (req: Request, res: Response) => {
@@ -18,11 +19,13 @@ export const invitationForReferral = asyncHandler(async (req: Request, res: Resp
 
         const user = await User.findOne({ email: userEmail });
 
-        console.log(user)
-
         if (!user) {
             res.status(404);
             throw new Error("User not found");
+        }
+
+        if (!user.partOfReferral) {
+          res.status(404).json({message : "Kindly Buy the Product to become the Part of Referral"}); 
         }
 
         const invitationToken = crypto.randomBytes(20).toString("hex");
@@ -60,7 +63,8 @@ export const assignReferral = asyncHandler(async (req: Request, res: Response) =
   const { token } = req.params;
   const { firstName, lastName, email, password, phone } = req.body;
 
-  if (!token || !email || !password || !firstName || !lastName || !phone) {
+
+  if (!token || !email || !password) {
     res.status(400);
     throw new Error("All fields are required");
   }
@@ -106,7 +110,6 @@ export const assignReferral = asyncHandler(async (req: Request, res: Response) =
         referredBy: referredUser._id,
         VerificationToken :verificationCode,
         VerificationTokenExpiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour expiry
-        level: 1
       });
  
       sendVerificationEmail(user.email, verificationCode)
@@ -114,7 +117,8 @@ export const assignReferral = asyncHandler(async (req: Request, res: Response) =
     } else {
       user = existingUser;
       user.referredBy = referredUser._id;
-      user.level = 1;
+      const PartOfReferral = user.partOfReferral
+      PartOfReferral ? user.level = 1 : user.level = 0
 
       if (!referredUser.directReferrals.includes(user._id)) {
         referredUser.directReferrals.push(user._id);
@@ -163,6 +167,35 @@ export const assignReferral = asyncHandler(async (req: Request, res: Response) =
       message: "Server Error",
       error: error.message || "An unknown error occurred",
     });
+  }
+});
+
+export const getDataForTree = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      res.status(400).json({ message: 'User not found' });
+      return;
+    }
+
+    const tree = await getReferralTree(user.directReferrals || [], 5); // 4 levels deep
+
+    res.status(200).json({
+      message: 'Referral tree fetched successfully',
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        directReferrals: tree,
+      },
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Something went wrong', error });
   }
 });
 

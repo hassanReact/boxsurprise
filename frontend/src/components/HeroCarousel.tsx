@@ -26,7 +26,7 @@ const HeroCarousel: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="max-h-[100vh] bg-gray-100">
       <Swiper
         modules={[Autoplay, EffectFade, Navigation, Pagination]}
         effect="fade"
@@ -40,7 +40,7 @@ const HeroCarousel: React.FC = () => {
           disableOnInteraction: false,
         }}
         loop={true}
-        className="h-[600px] relative"
+        className="h-[100vh] relative"
       >
         {slides.map((slide, index) => (
           <SwiperSlide key={index}>

@@ -43,7 +43,7 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
         phone,
         password: hashedPassword,
         VerificationToken: VerificationToken,
-        VerificationTokenExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
+        VerificationTokenExpiresAt: new Date(Date.now() + 10 * 10 * 60 * 1000),
         referralId: !referralId?.trim() ? generatedReferralId : referralId.trim(),
         ...(referralId?.trim() === ""
             ? { RootUser: true, role: "admin" }
@@ -60,8 +60,8 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
         success: true,
         message: "User Created Successfully",
         user: {
-           ...user.toObject(),
-           password: undefined
+            ...user.toObject(),
+            password: undefined
         }
     });
 });
@@ -123,30 +123,16 @@ export const logout = async (req: Request, res: Response) => {
 
 export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
 
-    const { code, level } = req.body;
+    const { code } = req.body;
 
     if (!code) {
         res.status(400);
         throw new Error("Verification code is required");
     }
 
-    const userLevel = level || 1;
 
     try {
-        const user = await User.findOneAndUpdate(
-            { VerifcationToken: code },
-            {
-                $set: {
-                    isVerified: true,
-                    VerificationTokenExpiresAt: new Date(0),
-                    level: userLevel,
-                },
-                $unset: {
-                    VerifcationToken: "",
-                },
-            },
-            { new: true }
-        );
+        const user = await User.findOne({ VerificationToken: code });
 
 
         if (!user) {
@@ -155,17 +141,21 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
         }
 
 
+        user.isVerified = true
+        user.VerificationTokenExpiresAt = undefined
+        user.VerificationToken = ""
 
-        if (user) {
-            await sendWelcomeEmail(user.email, user.name);
-        } else {
-            res.status(400);
-            throw new Error("Invalid or expired verification code");
-        }
+        await user.save()
+
+        await sendWelcomeEmail(user.email, user.name);
 
         res.status(200).json({
             success: true,
             message: "Email verified successfully",
+            user : {
+                ...user.toObject(),
+                password : undefined
+            }
         })
 
     } catch (error) {
@@ -291,83 +281,83 @@ export const checkAuth = asyncHandler(async (req: AuthRequest, res: Response) =>
 
 
 export const googleAuth = asyncHandler(async (req: Request, res: Response) => {
-  try {
-    const { code } = req.query;
+    try {
+        const { code } = req.query;
 
-    if (!code || typeof code !== 'string') {
-      res.status(400).json({ message: 'Invalid code parameter' });
-      return;
+        if (!code || typeof code !== 'string') {
+            res.status(400).json({ message: 'Invalid code parameter' });
+            return;
+        }
+
+        const { tokens } = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(tokens);
+
+        const userInfo = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${tokens.access_token}`);
+        const { email, name, picture } = userInfo.data;
+
+        let user = await User.findOne({ email });
+        const timestamp = Date.now().toString().slice(-5);
+        const referralId = name.toLowerCase().replace(/\s/g, '').slice(0, 5) + timestamp;
+
+        if (!user) {
+            user = await User.create({
+                email,
+                name,
+                image: picture,
+                referralId,
+                isVerified: true,
+            });
+        }
+
+        generateTokenAndSetCookie(res, user._id.toString());
+
+        res.status(200).json({
+            success: true,
+            message: 'Login successful',
+            user: {
+                ...user.toObject(),
+                password: undefined,
+            },
+        });
+        return;
+    } catch (error: any) {
+        res.status(401).json({
+            success: false,
+            message: 'Server Error',
+            error: error?.message || 'Unknown error',
+        });
+        return;
     }
-
-    const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
-
-    const userInfo = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${tokens.access_token}`);
-    const { email, name, picture } = userInfo.data;
-
-    let user = await User.findOne({ email });
-    const timestamp = Date.now().toString().slice(-5);
-    const referralId = name.toLowerCase().replace(/\s/g, '').slice(0, 5) + timestamp;
-
-    if (!user) {
-      user = await User.create({
-        email,
-        name,
-        image: picture,
-        referralId,
-        isVerified: true,
-      });
-    }
-
-    generateTokenAndSetCookie(res, user._id.toString());
-
-    res.status(200).json({
-      success: true,
-      message: 'Login successful',
-      user: {
-        ...user.toObject(),
-        password: undefined,
-      },
-    });
-    return;
-  } catch (error: any) {
-    res.status(401).json({
-      success: false,
-      message: 'Server Error',
-      error: error?.message || 'Unknown error',
-    });
-    return;
-  }
 });
 
 export const updateProfile = asyncHandler(async (req: Request, res: Response) => {
-    const {name , email, phone} = req.body
+    const { name, email, phone } = req.body
 
     try {
-        if(!name && !email && !phone) {
+        if (!name && !email && !phone) {
             res.status(400)
             throw new Error("At least one field is required")
         }
 
-        const user = await User.findOne({email})
+        const user = await User.findOne({ email })
 
-            if(!user) {
-                res.status(404)
-                throw new Error("User not found")
+        if (!user) {
+            res.status(404)
+            throw new Error("User not found")
+        }
+
+        user.name = name || user.name
+        user.email = email || user.email
+        user.phone = phone || user.phone
+
+        await user.save()
+
+        res.status(200).json({
+            user: {
+                ...user.toObject(),
+                password: undefined
             }
-
-            user.name = name || user.name
-            user.email = email || user.email
-            user.phone = phone || user.phone
-
-            await user.save()
-        
-            res.status(200).json({
-                user:{
-                    ...user.toObject(),
-                    password: undefined
-                }
-            })
+        })
     } catch (error) {
         res.status(500).json({
             success: false,
