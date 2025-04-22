@@ -97,6 +97,14 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+    partOfReferral : {
+      type : Boolean,
+      default : false
+    },
+    purchasedAmount: {
+      type: Number,
+      default: 0,
+    },
     VerificationToken: {
       type: String,
       required: false,
@@ -145,6 +153,10 @@ userSchema.pre("save", function (next) {
   this.Title = titles[this.level] || "";
   this.commission = commissionsInPercentage[this.level] || "0%";
 
+  if(this.purchasedAmount <= 5000){
+    this.partOfReferral = true
+  }
+
   next();
 });
 
@@ -157,6 +169,7 @@ userSchema.virtual("LevelTitle").get(function () {
     "Area Sales Manager",
     "Regional Sales Manager",
     "General Manager",
+    "Retirement"
   ];
   return titles[this.level] || "";
 });

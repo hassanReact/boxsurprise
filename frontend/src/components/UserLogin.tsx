@@ -41,16 +41,8 @@ const SignInForm = () => {
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        if (data.error?.toLowerCase().includes("user not found")) {
-          setError("User Not Found");
-          setTimeout(() => {
-            navigate("/register");
-          }, 3000)
-          return;
-        }
-        
-        setError(data.error || "Invalid email or password");
+        const error = await response.json();
+        setError(error || "Invalid email or password");
         setIsLoading(false);
         return;
       }

@@ -1,6 +1,7 @@
 import express from 'express'
 import { login, logout, signup, verifyEmail, forgetPassword, resetPassword, checkAuth, googleAuth , updateProfile} from '../controllers/auth.controller';
 import { verifyToken } from '../middleware/verifyToken';
+import { earning } from '../middleware/earningMiddleware';
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ router.get('/check-auth', verifyToken, checkAuth)
 
 router.post('/signup', signup )
 
-router.post('/login', login)
+router.post('/login', earning ,login)
 
 router.post('/logout', logout)
 

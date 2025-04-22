@@ -3,9 +3,11 @@ import dotenv from "dotenv";
 import * as Sentry from "@sentry/node";
 import dbConnect from "./config/db";
 import authRoutes from './routes/auth.route'
+import withdrawRoutes from './routes/withdraw.route'
 import referralRoutes from './routes/user.referral'
 import cookieParser from "cookie-parser";
 import cors from "cors"; 
+
 
 dotenv.config();
 const app = express();
@@ -31,6 +33,8 @@ app.get('/debug-sentry', function mainHandler(_req: Request, _res: Response) {
 
 app.use('/api/auth' , authRoutes)
 app.use('/api/referral', referralRoutes)
+app.use("/api/easypaisa", withdrawRoutes);
+
 Sentry.setupExpressErrorHandler(app)
 
 const PORT = process.env.PORT || 5000;
