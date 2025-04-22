@@ -75,7 +75,7 @@ export const login = async (req: Request, res: Response) => {
 
         if (!user) {
             res.status(401);
-            throw new Error("Invalid email or password");
+            throw new Error("User Not Found");
         }
 
         console.log(user.password)
@@ -166,6 +166,10 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
         res.status(200).json({
             success: true,
             message: "Email verified successfully",
+            user: {
+                ...user.toObject(),
+                password: undefined
+            }
         })
 
     } catch (error) {
