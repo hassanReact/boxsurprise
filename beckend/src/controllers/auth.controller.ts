@@ -10,60 +10,56 @@ import axios from 'axios'
 
 export const signup = asyncHandler(async (req: Request, res: Response) => {
     const { firstName, lastName, email, phone, password, referralId } = req.body;
-
+  
     if (!firstName || !lastName || !email || !phone || !password) {
-        res.status(400);
-        throw new Error("All fields are required");
+      res.status(400);
+      throw new Error("All fields are required");
     }
-
-
-
+  
     let generatedReferralId = "";
     if (!referralId || referralId.trim() === "") {
-        const timestamp = Date.now().toString().slice(-5);
-        const namePart = `${firstName}${lastName}`.replace(/\s+/g, "").toLowerCase().slice(0, 5);
-        const phonePart = phone.slice(-4);
-        generatedReferralId = `${namePart}${phonePart}${timestamp}`;
+      const timestamp = Date.now().toString().slice(-5);
+      const namePart = `${firstName}${lastName}`.replace(/\s+/g, "").toLowerCase().slice(0, 5);
+      const phonePart = phone.slice(-4);
+      generatedReferralId = `${namePart}${phonePart}${timestamp}`;
     }
-
+  
     const userAlreadyExist = await User.findOne({ email });
-
     if (userAlreadyExist) {
-        res.status(400);
-        throw new Error("User already exists");
+      res.status(400);
+      throw new Error("User already exists");
     }
-
+  
     const hashedPassword = await bcrypt.hash(password, 10);
     const VerificationToken = Math.floor(100000 + Math.random() * 900000).toString();
-
-
+  
     const user = await User.create({
-        name: `${firstName} ${lastName}`,
-        email,
-        phone,
-        password: hashedPassword,
-        VerificationToken: VerificationToken,
-        VerificationTokenExpiresAt: new Date(Date.now() + 10 * 10 * 60 * 1000),
-        referralId: !referralId?.trim() ? generatedReferralId : referralId.trim(),
-        ...(referralId?.trim() === ""
-            ? { RootUser: true, role: "admin" }
-            : {}),
+      name: `${firstName} ${lastName}`,
+      email,
+      phone,
+      password: hashedPassword,
+      VerificationToken,
+      VerificationTokenExpiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 min
+      referralId: !referralId?.trim() ? generatedReferralId : referralId.trim(),
+      ...(referralId?.trim() === "" ? { RootUser: true, role: "admin" } : {}),
     });
-
-
-    // generateTokenAndSetCookie(res, user._id.toString());
-    
+  
+    // ✅ Send Response Quickly
     res.status(201).json({
-        success: true,
-        message: "User Created Successfully",
-        user: {
-            ...user.toObject(),
-            password: undefined
-        }
+      success: true,
+      message: "User Created Successfully",
+      user: {
+        ...user.toObject(),
+        password: undefined
+      }
     });
-    await sendVerificationEmail(user.email, VerificationToken);
-});
-
+  
+    // ✅ Send Email in Background (non-blocking)
+    sendVerificationEmail(user.email, VerificationToken).catch((err) =>
+      console.error("Email sending failed:", err)
+    );
+  });
+  
 
 export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
