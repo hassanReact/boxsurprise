@@ -54,8 +54,7 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
     await user.save()
 
     // generateTokenAndSetCookie(res, user._id.toString());
-    await sendVerificationEmail(user.email, VerificationToken);
-
+    
     res.status(201).json({
         success: true,
         message: "User Created Successfully",
@@ -64,6 +63,7 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
             password: undefined
         }
     });
+    await sendVerificationEmail(user.email, VerificationToken);
 });
 
 
