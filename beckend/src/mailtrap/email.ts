@@ -2,40 +2,33 @@ import { INVITATION_EMAIL_TEMPLATE, PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RE
 import nodemailer from "nodemailer"
 
 
+import { Resend } from 'resend';
+
 export const sendVerificationEmail = async (email: string, VerificationToken: string) => {
-    const recipent: { email: string }[] = [{ email }]
-    
-    try {
-    const transporter = nodemailer.createTransport({
-      service: 'Gmail',
-      host: 'smtp.gmail.com',
-      secure: false,
-      auth: {
-        user: process.env.GMAIL_FROM,
-        pass: process.env.GMAIL_APP_PASSWORD
-      }
+  const html = VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", VerificationToken);
+
+  const resend = new Resend(process.env.RESEND_API_KEY as string);
+
+  resend.apiKeys.create({ name: 'Production' });
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Box Surprise <onboarding@resend.dev>', 
+      to: email,
+      subject: 'Verify your email address',
+      html,
     });
 
-    if(!recipent || recipent.length === 0 || !VerificationToken || VerificationToken.toString() === "") {
-        throw new Error("Recipent is not valid")
+    if (error) {
+      console.error('Resend Error:', error);
+    } else {
+      console.log('Verification Email sent successfully:', data);
     }
+  } catch (err) {
+    console.error('Unexpected error sending email:', err);
+  }
+};
 
-
-       const response = await transporter.sendMail({
-        from: process.env.GMAIL_FROM,
-        to: recipent.map(r => r.email),
-        subject: "Verify your email address",
-        html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", VerificationToken)
-    })
-
-
-        console.log("Email Sent Succesfully", response)
-    } catch (error) {
-        console.error('Error Sending Verification')
-        throw new Error("Error Sending verification email");
-        
-    }
-}
 
 export const sendWelcomeEmail = async (email: string, name: string) => {
 
