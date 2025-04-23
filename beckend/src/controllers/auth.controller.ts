@@ -75,7 +75,7 @@ export const login = async (req: Request, res: Response) => {
 
         if (!user) {
             res.status(401);
-            throw new Error("Invalid email or password");
+            throw new Error("User Not Found");
         }
 
         console.log(user.password)
