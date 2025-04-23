@@ -1,11 +1,25 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
+let isConnected = false; // Global cache
 
 const dbConnect = async () => {
-    mongoose.connection.on('connected', () => console.log('DataBase is Connected') )
-   await mongoose.connect(process.env.MONGO_URI as string) 
-      .then(() => console.log('Connected to MongoDB'))
-      .catch(err => console.log('Failed to connect to MongoDB', err));
-} 
+  if (isConnected) {
+    return; // Skip if already connected
+  }
 
-export default dbConnect
+  try {
+    const db = await mongoose.connect(process.env.MONGO_URI as string, {
+      // Optional tuning options
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    } as any);
+    
+    isConnected = db.connections[0].readyState === 1;
+    console.log('✅ MongoDB connected:', db.connection.host);
+  } catch (error) {
+    console.error('❌ MongoDB connection error:', error);
+    throw error;
+  }
+};
+
+export default dbConnect;
