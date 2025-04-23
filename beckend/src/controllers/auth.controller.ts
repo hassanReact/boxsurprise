@@ -51,8 +51,6 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
     });
 
 
-    await user.save()
-
     // generateTokenAndSetCookie(res, user._id.toString());
     
     res.status(201).json({
