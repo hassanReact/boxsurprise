@@ -51,8 +51,8 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
 
 
     // generateTokenAndSetCookie(res, user._id.toString());
-    sendVerificationEmail(user.email, VerificationToken);
-    
+    // sendVerificationEmail(user.email, VerificationToken);
+
     res.status(201).json({
         success: true,
         message: "User Created Successfully",
