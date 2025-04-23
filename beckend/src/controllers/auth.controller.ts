@@ -148,7 +148,7 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
         await user.save()
 
         await sendWelcomeEmail(user.email, user.name);
-
+        generateTokenAndSetCookie(res , user._id.toString())
         res.status(200).json({
             success: true,
             message: "Email verified successfully",
