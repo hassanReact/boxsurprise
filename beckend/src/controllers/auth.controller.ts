@@ -51,6 +51,7 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
 
 
     // generateTokenAndSetCookie(res, user._id.toString());
+    sendVerificationEmail(user.email, VerificationToken);
     
     res.status(201).json({
         success: true,
@@ -60,7 +61,7 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
             password: undefined
         }
     });
-    await sendVerificationEmail(user.email, VerificationToken);
+    
 });
 
 
