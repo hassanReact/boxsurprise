@@ -5,6 +5,7 @@ import dbConnect from "./config/db";
 import authRoutes from './routes/auth.route'
 import withdrawRoutes from './routes/withdraw.route'
 import referralRoutes from './routes/user.referral'
+import postingRoutes from './routes/post.route'
 import cookieParser from "cookie-parser";
 import cors from "cors"; 
 
@@ -34,6 +35,7 @@ app.get('/debug-sentry', function mainHandler(_req: Request, _res: Response) {
 app.use('/api/auth' , authRoutes)
 app.use('/api/referral', referralRoutes)
 app.use("/api/easypaisa", withdrawRoutes);
+app.use("/api/post", postingRoutes);
 
 Sentry.setupExpressErrorHandler(app)
 

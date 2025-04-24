@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema(
   {
-    author: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -13,16 +13,10 @@ const postSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    content: {
-      type: String,
-      required: true,
-    },
-    image: {
-      type: String, 
-    },
     tags: [
       {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         trim: true,
       },
     ],

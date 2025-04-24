@@ -12,8 +12,7 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
     const { firstName, lastName, email, phone, password, referralId } = req.body;
 
     if (!firstName || !lastName || !email || !phone || !password) {
-        res.status(400);
-        throw new Error("All fields are required");
+        res.status(400).json({message : "All fields are required"});
     }
 
 
@@ -29,8 +28,8 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
     const userAlreadyExist = await User.findOne({ email });
 
     if (userAlreadyExist) {
-        res.status(400);
-        throw new Error("User already exists");
+        res.status(400)
+        .json({message :"User already exists"});
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -51,10 +50,8 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
     });
 
 
-    await user.save()
-
     // generateTokenAndSetCookie(res, user._id.toString());
-    await sendVerificationEmail(user.email, VerificationToken);
+    // sendVerificationEmail(user.email, VerificationToken);
 
     res.status(201).json({
         success: true,
@@ -64,6 +61,7 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
             password: undefined
         }
     });
+    
 });
 
 
@@ -148,7 +146,7 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
         await user.save()
 
         await sendWelcomeEmail(user.email, user.name);
-
+        generateTokenAndSetCookie(res , user._id.toString())
         res.status(200).json({
             success: true,
             message: "Email verified successfully",
