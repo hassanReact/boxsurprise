@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 
 const SignUpForm = () => {
   const navigate = useNavigate();
+  const { referralId: token } = useParams<{ referralId: string }>();
   
   const {
     register,
@@ -19,15 +21,21 @@ const SignUpForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const env = import.meta.env.VITE_SERVER_URI;
 
+  // const env = import.meta.env.VITE_SERVER_URI;
+
+
+  const signUp = `${import.meta.env.VITE_SERVER_URI}/api/auth/signup`
+  const inviteSignUp = token
+  ? `${import.meta.env.VITE_SERVER_URI}/api/referral/accept/${token}`
+  : signUp;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = async (data: any) => {
     console.log('Form Data:', data);
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${env}/api/auth/signup`, {
+      const response = await fetch( inviteSignUp , {
         method: 'POST',
         credentials: 'include',
         headers: {

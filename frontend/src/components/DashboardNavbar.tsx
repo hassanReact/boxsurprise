@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Bell, Menu, X } from "lucide-react";
+import { Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../hooks";
 
@@ -83,7 +83,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
           className="mr-4 cursor-pointer lg:hidden focus:outline-none"
           aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
         >
-          {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+          {/* {isSidebarOpen ? <X size={24} /> : <Menu size={24} />} */}
         </button>
         <div className="text-base md:text-xl font-semibold text-gray-800 truncate">
           Welcome back {userFirstName}!

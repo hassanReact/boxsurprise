@@ -197,7 +197,11 @@ export const forgetPassword = asyncHandler(async (req: Request, res: Response) =
             message: "Reset password email sent successfully",
         });
     } catch (error) {
-
+        res.status(500).json({
+            success: false,
+            message: "Server Error",
+            error: error instanceof Error ? error.message : "An unknown error occurred",
+        });
     }
 
 })
@@ -205,6 +209,8 @@ export const forgetPassword = asyncHandler(async (req: Request, res: Response) =
 export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
     const { token } = req.params
     const { password } = req.body;
+
+    console.log(token, password);
 
     if (!token || !password) {
         res.status(400);

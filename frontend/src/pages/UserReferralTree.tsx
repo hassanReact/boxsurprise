@@ -1,6 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight, User } from 'lucide-react';
+import { ChevronDown, ChevronRight, User, RefreshCw } from 'lucide-react';
+import InviteButton from '../components/InviteButton';
+import InviteModal from '../components/InviteModel'; // Fixed typo in import
+import { useAppSelector } from '../hooks';
 
 interface ReferralNode {
   id: number;
@@ -10,6 +12,15 @@ interface ReferralNode {
   status: 'active' | 'inactive';
   earnings: number;
   children: ReferralNode[];
+}
+
+// Type for referral counts
+interface ReferralCounts {
+  tier1: number;
+  tier2: number;
+  tier3: number;
+  tier4: number;
+  total: number;
 }
 
 const getTierColor = (level: number) => {
@@ -23,162 +34,185 @@ const getTierColor = (level: number) => {
 };
 
 const ReferralTree: React.FC = () => {
-  // Sample data for demonstration
-  const [treeData, _setTreeData] = useState<ReferralNode>({
+  // Initial empty tree structure
+  const emptyTree: ReferralNode = {
     id: 1,
     name: 'You',
     level: 0,
-    joinDate: '2023-01-01',
+    joinDate: new Date().toISOString().split('T')[0],
     status: 'active',
-    earnings: 1234,
-    children: [
-      {
-        id: 2,
-        name: 'John Smith',
-        level: 1,
-        joinDate: '2023-02-15',
-        status: 'active',
-        earnings: 450,
-        children: [
-          {
-            id: 5,
-            name: 'Sarah Johnson',
-            level: 2,
-            joinDate: '2023-03-10',
-            status: 'active',
-            earnings: 120,
-            children: [
-              {
-                id: 9,
-                name: 'Emma Davis',
-                level: 3,
-                joinDate: '2023-05-10',
-                status: 'active',
-                earnings: 45,
-                children: [
-                  {
-                    id: 13,
-                    name: 'Tyler Wilson',
-                    level: 4,
-                    joinDate: '2023-06-20',
-                    status: 'active',
-                    earnings: 20,
-                    children: []
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            id: 6,
-            name: 'Mike Brown',
-            level: 2,
-            joinDate: '2023-03-15',
-            status: 'inactive',
-            earnings: 85,
-            children: [
-              {
-                id: 10,
-                name: 'Jacob Taylor',
-                level: 3,
-                joinDate: '2023-05-22',
-                status: 'active',
-                earnings: 35,
-                children: []
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 3,
-        name: 'Lisa Davis',
-        level: 1,
-        joinDate: '2023-02-20',
-        status: 'active',
-        earnings: 380,
-        children: [
-          {
-            id: 7,
-            name: 'Alex Wilson',
-            level: 2,
-            joinDate: '2023-04-05',
-            status: 'active',
-            earnings: 95,
-            children: [
-              {
-                id: 11,
-                name: 'Sophia Garcia',
-                level: 3,
-                joinDate: '2023-06-01',
-                status: 'active',
-                earnings: 30,
-                children: [
-                  {
-                    id: 14,
-                    name: 'Olivia Martin',
-                    level: 4,
-                    joinDate: '2023-07-15',
-                    status: 'active',
-                    earnings: 15,
-                    children: []
-                  }
-                ]
-              },
-              {
-                id: 12,
-                name: 'Liam Johnson',
-                level: 3,
-                joinDate: '2023-06-10',
-                status: 'active',
-                earnings: 25,
-                children: [
-                  {
-                    id: 15,
-                    name: 'Noah Anderson',
-                    level: 4,
-                    joinDate: '2023-07-20',
-                    status: 'active',
-                    earnings: 10,
-                    children: []
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 4,
-        name: 'Robert Lee',
-        level: 1,
-        joinDate: '2023-03-01',
-        status: 'active',
-        earnings: 310,
-        children: [
-          {
-            id: 8,
-            name: 'Emily Harris',
-            level: 2,
-            joinDate: '2023-04-12',
-            status: 'active',
-            earnings: 75,
-            children: []
-          }
-        ]
-      }
-    ]
-  });
+    earnings: 0,
+    children: []
+  };
 
+  const [treeData, setTreeData] = useState<ReferralNode>(emptyTree);
   const [expandedNodes, setExpandedNodes] = useState<number[]>([1]);
+  const [referralCounts, setReferralCounts] = useState<ReferralCounts>({ tier1: 0, tier2: 0, tier3: 0, tier4: 0, total: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'tree' | 'list'>('tree');
   const [isMobile, setIsMobile] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
+  // Add this debugging function to your component
+  // Call this in useEffect after data is loaded
+useEffect(() => {
+  const debugTreeData = () => {
+    console.log("Current tree data:", treeData);
+    console.log("Tree data children:", treeData.children);
+    // Check if children exist and have proper structure
+    if (treeData.children && treeData.children.length > 0) {
+      console.log("First child:", treeData.children[0]);
+    }
+    console.log("Expanded nodes:", expandedNodes);
+  };
+
+  if (!isLoading && !error) {
+    debugTreeData();
+  }
+}, [treeData, isLoading, error, expandedNodes]);
+
+  // Get user from Redux store
+  const user = useAppSelector((state) => state.auth.user);
+  const userEmail = user?.email || '';
+
+  // Count referrals per tier
+  const countReferralsByTier = (node: ReferralNode): ReferralCounts => {
+    const counts: ReferralCounts = { tier1: 0, tier2: 0, tier3: 0, tier4: 0, total: 0 };
+    
+    const countNodes = (node: ReferralNode) => {
+      if (node.id !== 1) { // Don't count yourself
+        counts.total++;
+  
+        // Ensure that `node.level` is a valid number and falls within the expected range
+        const level = Number(node.level);
+        if (!isNaN(level)) {
+          if (level === 1) counts.tier1++;
+          else if (level === 2) counts.tier2++;
+          else if (level === 3) counts.tier3++;
+          else if (level === 4) counts.tier4++;
+        }
+      }
+  
+      // Safely handle the iteration over `children`, ensuring it's an array
+      if (Array.isArray(node.children)) {
+        node.children.forEach(countNodes);
+      }
+    };
+    
+    countNodes(node);
+    return counts;
+  };
+  
+
+  // Fetch referral tree data from the backend
+  const fetchReferralTree = async (showRefreshIndicator = false) => {
+    if (showRefreshIndicator) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
+    setError(null);
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URI}/api/referral/tree`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: userEmail })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      const responseData = await response.json();
+      console.log("API response:", responseData);
+      
+      // Ensure the data follows our expected structure
+      if (!responseData || typeof responseData !== 'object') {
+        throw new Error('Invalid data format received from server');
+      }
+      
+      // Transform the API response to match our component's expected structure
+      if (responseData.message === 'Referral tree fetched successfully' && responseData.data) {
+        // Create root node with user data
+        const transformedData: ReferralNode = {
+          id: 1, // Root ID
+          name: responseData.data.name || 'You',
+          level: 0,
+          joinDate: new Date().toISOString().split('T')[0],
+          status: 'active',
+          earnings: 0,
+          children: []
+        };
+        
+        // Process direct referrals as children
+        if (responseData.data.directReferrals && Array.isArray(responseData.data.directReferrals)) {
+          transformedData.children = responseData.data.directReferrals.map((referral: { name?: string; joinDate?: string; status?: string; earnings?: number }, index: number) => {
+            // Create child node for each direct referral
+            return {
+              id: 2 + index, // Generate unique sequential IDs
+              name: referral.name || `Referral ${index + 1}`,
+              level: 1,
+              joinDate: referral.joinDate || new Date().toISOString().split('T')[0],
+              status: referral.status || 'active',
+              earnings: referral.earnings || 0,
+              children: [] // Initialize empty children array
+            };
+          });
+        } else{
+          // Ensure children array is empty when no referrals exist
+  transformedData.children = [];
+        }
+
+        console.log("Transformed data:", transformedData);
+        
+        // Set the transformed data to state
+        setTreeData(transformedData);
+        
+        // Always expand the root node
+        setExpandedNodes([1]);
+        
+        // Calculate referral stats based on the transformed data
+        const counts = countReferralsByTier(transformedData);
+        setReferralCounts(counts);
+      } else {
+        throw new Error('Invalid data structure received from server');
+      }
+      
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch referral tree';
+      setError(errorMessage);
+      console.error('Error fetching referral tree:', err);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  // Fetch data when component mounts
+  useEffect(() => {
+    fetchReferralTree();
+    
+    // Set up polling to refresh data periodically (every 5 minutes)
+    const intervalId = setInterval(() => {
+      fetchReferralTree(true); // true indicates this is a refresh
+    }, 5 * 60 * 1000);
+    
+    return () => clearInterval(intervalId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
+  
   // Check if screen is mobile
   useEffect(() => {
     const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth < 768) {
+      const isMobileView = window.innerWidth < 768;
+      setIsMobile(isMobileView);
+      if (isMobileView) {
         setViewMode('list');
       }
     };
@@ -192,16 +226,39 @@ const ReferralTree: React.FC = () => {
   }, []);
 
   const toggleNode = (nodeId: number) => {
+    console.log("Toggle node:", nodeId);
     if (expandedNodes.includes(nodeId)) {
+      console.log("Collapsing node");
       setExpandedNodes(expandedNodes.filter(id => id !== nodeId));
     } else {
+      console.log("Expanding node");
       setExpandedNodes([...expandedNodes, nodeId]);
     }
+    console.log("New expanded state:", expandedNodes.includes(nodeId) ? "expanded" : "collapsed");
+  };
+
+  // Expand or collapse all nodes
+  const expandAll = () => {
+    // Create a flat array of all node IDs
+    const getAllNodeIds = (node: ReferralNode): number[] => {
+      const ids = [node.id];
+      node.children?.forEach(child => {
+        ids.push(...getAllNodeIds(child));
+      });
+      return ids;
+    };
+    
+    setExpandedNodes(getAllNodeIds(treeData));
+  };
+  
+  const collapseAll = () => {
+    setExpandedNodes([1]); // Only keep root node expanded
   };
 
   // Tree visualization style with responsive adjustments
   const renderTreeView = () => {
-    const renderNodeTree = (node: ReferralNode, _isLastChild: boolean = false) => {
+    const renderNodeTree = (node: ReferralNode) => {
+      console.log("Rendering node:", node.id, node.name);
       const colorScheme = getTierColor(node.level);
       const hasChildren = node.children && node.children.length > 0;
       const isExpanded = expandedNodes.includes(node.id);
@@ -219,7 +276,7 @@ const ReferralTree: React.FC = () => {
           {/* User name - smaller font on small screens */}
           <div className="text-center mb-1">
             <div className="text-sm md:text-base font-semibold truncate max-w-24 md:max-w-32">{node.name}</div>
-            <div className="text-xs text-gray-600">Tier {node.level + 1}</div>
+            <div className="text-xs text-gray-600">Tier {(node.level !== undefined ? node.level : 0) + 1}</div>
           </div>
           
           {/* Toggle indicator if has children */}
@@ -245,11 +302,11 @@ const ReferralTree: React.FC = () => {
               
               {/* Children with responsive spacing */}
               <div className="flex justify-center space-x-4 md:space-x-8">
-                {node.children.map((child, index) => (
+                {node.children.map((child) => (
                   <div key={child.id} className="relative">
                     {/* Vertical line to this child */}
                     <div className="w-0.5 bg-gray-300 h-6 absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-6"></div>
-                    {renderNodeTree(child, index === node.children.length - 1)}
+                    {renderNodeTree(child)}
                   </div>
                 ))}
               </div>
@@ -305,7 +362,7 @@ const ReferralTree: React.FC = () => {
             </div>
             <div className="flex items-center justify-between text-xs md:text-sm text-gray-600">
               <span>Tier {node.level + 1}</span>
-              <span>Rs: {node.earnings.toFixed(2)}</span>
+              <span>Rs: {(node.earnings ?? 0).toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -319,44 +376,72 @@ const ReferralTree: React.FC = () => {
     );
   };
 
-  // Count referrals per tier
-  const countReferralsByTier = () => {
-    const counts = { tier1: 0, tier2: 0, tier3: 0, tier4: 0, total: 0 };
-    
-    const countNodes = (node: ReferralNode) => {
-      if (node.id !== 1) { // Don't count yourself
-        counts.total++;
-        if (node.level === 1) counts.tier1++;
-        else if (node.level === 2) counts.tier2++;
-        else if (node.level === 3) counts.tier3++;
-        else if (node.level === 4) counts.tier4++;
-      }
-      
-      node.children.forEach(countNodes);
-    };
-    
-    countNodes(treeData);
-    return counts;
-  };
-  
-  const referralCounts = countReferralsByTier();
+  // Render loading state
+  const renderLoadingState = () => (
+    <div className="flex flex-col items-center justify-center py-16">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
+      <p className="text-gray-600">Loading your referral network...</p>
+    </div>
+  );
+
+  // Render error state
+  const renderErrorState = () => (
+    <div className="flex flex-col items-center justify-center py-16 px-4">
+      <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-4 max-w-md text-center">
+        <p className="font-medium mb-2">Unable to load referral data</p>
+        <p className="text-sm">{error}</p>
+      </div>
+      <button 
+        onClick={() => fetchReferralTree()} 
+        className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+      >
+        <RefreshCw size={16} className="mr-2" /> Try Again
+      </button>
+    </div>
+  );
 
   return (
-    <div className="container mx-auto py-4 mt-8 md:py-6 px-2 md:px-4 lg:px-6">
-      <div className="mb-4 md:mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Your Referral Network</h1>
-        <p className="text-sm md:text-base text-gray-600">View your downline structure with color-coded tiers</p>
+    <div className="container mx-auto py-4 mt-8 md:py-6 px-1 md:px-3 lg:px-5">
+      <div className="relative mb-4 md:mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-1xl md:text-3xl font-bold text-gray-800">Your Referral Network</h1>
+          {/* <p className="text-sm md:text-base text-gray-600">View your downline structure with color-coded tiers</p> */}
+        </div>
+        
+        {/* Refresh button */}
+        <div className="absolute top-0 right-16 md:right-20">
+          <button 
+            onClick={() => fetchReferralTree(true)}
+            disabled={isRefreshing}
+            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+            title="Refresh Data"
+          >
+            <RefreshCw size={20} className={isRefreshing ? "animate-spin" : ""} />
+          </button>
+        </div>
+        
+        {/* Invite button */}
+        <div className="absolute top-0 right-0">
+          <InviteButton onClick={() => setIsInviteModalOpen(true)} />
+        </div>
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-4 mb-4 md:mb-8">
         <div className="bg-white rounded-lg shadow-md p-3 md:p-6">
           <div className="mb-1 md:mb-2 text-xs md:text-sm font-medium text-gray-500">Total Network</div>
-          <div className="text-xl md:text-3xl font-bold text-gray-800">{referralCounts.total}</div>
+          <div className="text-xl md:text-3xl font-bold text-gray-800">
+            {isLoading ? <div className="animate-pulse h-8 w-12 bg-gray-200 rounded"></div> : referralCounts.total}
+          </div>
         </div>
         
         {[1, 2, 3, 4].map((tier) => {
           const colors = getTierColor(tier - 1);
+          const tierCount = tier === 1 ? referralCounts.tier1 : 
+                           tier === 2 ? referralCounts.tier2 : 
+                           tier === 3 ? referralCounts.tier3 : 
+                           referralCounts.tier4;
+          
           return (
             <div key={tier} className="bg-white rounded-lg shadow-md p-3 md:p-6">
               <div className="flex items-center justify-between mb-1 md:mb-2">
@@ -364,7 +449,10 @@ const ReferralTree: React.FC = () => {
                 <span className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${colors.bg}`}></span>
               </div>
               <div className="text-xl md:text-3xl font-bold text-gray-800">
-                {tier === 1 ? referralCounts.tier1 : tier === 2 ? referralCounts.tier2 : tier === 3 ? referralCounts.tier3 : referralCounts.tier4}
+                {isLoading ? 
+                  <div className="animate-pulse h-8 w-8 bg-gray-200 rounded"></div> : 
+                  tierCount
+                }
               </div>
             </div>
           );
@@ -409,13 +497,13 @@ const ReferralTree: React.FC = () => {
           
           <div className="flex gap-2 md:gap-3">
             <button 
-              onClick={() => setExpandedNodes([1, ...Array.from(new Array(15)).map((_, i) => i + 2)])} 
+              onClick={expandAll} 
               className="text-xs md:text-sm px-2 md:px-3 py-1 bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100"
             >
               Expand All
             </button>
             <button 
-              onClick={() => setExpandedNodes([1])} 
+              onClick={collapseAll} 
               className="text-xs md:text-sm px-2 md:px-3 py-1 bg-gray-50 text-gray-600 rounded-md hover:bg-gray-100"
             >
               Collapse All
@@ -423,31 +511,68 @@ const ReferralTree: React.FC = () => {
           </div>
         </div>
         
-        {/* Show appropriate view based on viewport size or user selection */}
-        {(!isMobile || viewMode === 'tree') && (
-          <div className="overflow-x-auto max-w-full">
-            {renderTreeView()}
-          </div>
-        )}
+        {/* Loading and error states */}
+        {isLoading && renderLoadingState()}
+        {!isLoading && error && renderErrorState()}
         
-        {/* List view (shown by default on mobile or when selected) */}
-        {(isMobile && viewMode === 'list') ? (
-          <div className="pt-2">
-            <div className="border rounded-md mx-2 md:mx-6 mb-4 md:mb-6 overflow-hidden">
-              {renderListView(treeData)}
+        {/* Show appropriate view based on viewport size or user selection */}
+        {!isLoading && !error && (
+          <>
+  <div className="p-4">
+    {/* <div className="mb-4">
+      <strong>Debug Info:</strong> Found {treeData.children?.length || 0} direct referrals
+    </div> */}
+    
+    <div className="overflow-x-auto max-w-full">
+      {renderTreeView()}
+    </div>
+  </div>
+    {/* List view (shown by default on mobile or when selected) */}
+    {(isMobile && viewMode === 'list') ? (
+      <div className="pt-2">
+        <div className="border rounded-md mx-2 md:mx-6 mb-4 md:mb-6 overflow-hidden">
+          {renderListView(treeData)}
+        </div>
+      </div>
+    ) : !isMobile && (
+      <div className="border-t pt-4 md:pt-6">
+        <div className="px-4 md:px-6 mb-2 md:mb-3">
+          <h3 className="font-medium text-sm md:text-base">Detailed List View</h3>
+        </div>
+        <div className="border rounded-md mx-2 md:mx-6 mb-4 md:mb-6 overflow-hidden">
+          {renderListView(treeData)}
+        </div>
+      </div>
+    )}
+  </>
+)}
+        
+        {/* Empty state when no referrals */}
+        {!isLoading && !error && (!treeData.children || treeData.children.length === 0) && (
+          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <div className="bg-indigo-50 rounded-full p-4 mb-4">
+              <User size={32} className="text-indigo-600" />
             </div>
-          </div>
-        ) : !isMobile && (
-          <div className="border-t pt-4 md:pt-6">
-            <div className="px-4 md:px-6 mb-2 md:mb-3">
-              <h3 className="font-medium text-sm md:text-base">Detailed List View</h3>
-            </div>
-            <div className="border rounded-md mx-2 md:mx-6 mb-4 md:mb-6 overflow-hidden">
-              {renderListView(treeData)}
-            </div>
+            <h3 className="text-lg font-medium text-gray-800 mb-2">No Referrals Yet</h3>
+            <p className="text-gray-600 mb-6 max-w-md">
+              You haven't referred anyone yet. Share your referral link to start building your network!
+            </p>
+            <button 
+              onClick={() => setIsInviteModalOpen(true)} 
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+            >
+              Invite Someone
+            </button>
           </div>
         )}
       </div>
+
+      {/* Invite Modal */}
+      <InviteModal 
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        userEmail={userEmail}
+      />
     </div>
   );
 };

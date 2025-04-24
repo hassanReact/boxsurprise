@@ -25,6 +25,8 @@ import { useAppDispatch, useAppSelector } from "./hooks";
 import { RootState } from "./store";
 import UserProfile from "./pages/UserProfile";
 import { setUser } from "./features/auth/authSlice";
+import ForgotPassword from "./components/ForgetPassword";
+import ResetPassword from "./components/ResetPassword";
 
 
 
@@ -36,7 +38,7 @@ const App: React.FC = () => {
   const isAuthenticated = useAppSelector((state: RootState) => state.auth.isAuthenticated);
   const userRole = useAppSelector((state: RootState) => state.auth.user?.role || "user");
   
-  const authenticationRoute = window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname === "/verify-user";
+  const authenticationRoute = window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname === "/verify-user" || window.location.pathname === "/forget-password" || window.location.pathname === "/reset-password/:token";
   
   // const showDashboard = devMode || isLoggedIn;
 
@@ -61,8 +63,10 @@ const App: React.FC = () => {
                 element={<UserLogin />}
               />
               <Route path="/register" element={<UserSignUp />} />
+              <Route path="/register/:referralId" element={<UserSignUp />} />
               <Route path="/verify-user" element={<VerifyUser />} />
-              {/* <Route path="/forgot-password/:token" element={} /> */}
+              <Route path="/forget-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </main>

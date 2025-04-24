@@ -35,7 +35,7 @@ export const invitationForReferral = asyncHandler(async (req: Request, res: Resp
         user.invitationTokenExpiresAt = invitationTokenExpiresAt;
         await user.save();
 
-        const invitationLink = `${process.env.CLIENT_URI}/invitation-form/${invitationToken}`;
+        const invitationLink = `${process.env.CLIENT_URI}/register/${invitationToken}`;
 
         // Send email with inviter's name and recipient's email
         await sendInvitationEmail(

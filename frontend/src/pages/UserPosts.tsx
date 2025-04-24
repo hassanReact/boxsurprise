@@ -17,6 +17,19 @@ interface Post {
 
 const UserPosts: React.FC = () => {
   const [newPost, setNewPost] = useState('');
+
+  try {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/posts`, {
+      method: 'GET',
+      credentials: 'include', // Include cookies in the request
+      headers:{
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you have a token stored in localStorage
+      }
+    })
+  } catch (error) {
+    
+  }
   
   // This would come from your API/database
   const posts: Post[] = [
