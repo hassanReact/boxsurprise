@@ -12,6 +12,8 @@ const dbConnect = async () => {
     
     isConnected = db.connections[0].readyState === 1;
     console.log('✅ MongoDB connected:', db.connection.host);
+
+    return db; // Return the database connection
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
     throw error;
