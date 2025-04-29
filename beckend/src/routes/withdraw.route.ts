@@ -1,8 +1,8 @@
 import useRouter from 'express'
-import { easyPaisa } from '../controllers/withdraw.controller'
+import { paymenyManually } from '../controllers/withdraw.controller'
 
 const router = useRouter()
 
-router.post('/withdraw', easyPaisa)
+router.post('/withdraw/:id', paymenyManually)
 
 export default router

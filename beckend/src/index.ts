@@ -21,12 +21,26 @@ app.use(cors({
 app.use(express.json()); // Middleware to parse JSON requests
 app.use(cookieParser())
 // Database Connection
-dbConnect()
-// Routes
+let isDbConnected = false; // <-- Add this at the top, after `dotenv.config()`
 
-app.get('/', (_req : Request, res : Response) => {
-  res.json({ Message: "API is WORKING" })
-})
+// Database Connection
+dbConnect()
+  .then(() => {
+    console.log("Database connected successfully");
+    isDbConnected = true; // <-- Set it to true when connected
+  })
+  .catch((err) => {
+    console.error("Database connection error:", err);
+    isDbConnected = false;
+  });
+
+// Routes
+app.get('/', (_req: Request, res: Response) => {
+  res.json({ 
+    message: "API is WORKING", 
+    database: isDbConnected ? "Connected" : "Not Connected" 
+  });
+});
 
 app.get('/debug-sentry', function mainHandler(_req: Request, _res: Response) {
   throw new Error("My First Sentry Error!")
