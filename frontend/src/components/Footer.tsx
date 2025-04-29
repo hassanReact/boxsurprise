@@ -51,18 +51,24 @@ const Footer: React.FC = () => {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <MapPin className="w-5 h-5 mr-3 text-blue-600 flex-shrink-0 mt-1" />
-                <span className="text-gray-300">123 Business Avenue, Network City, ST 12345</span>
+                <span className="text-gray-300">Hakeemabad Nowshera</span>
               </li>
               <li className="flex items-center">
                 <Phone className="w-5 h-5 mr-3 text-blue-600" />
-                <a href="tel:+1234567890" className="text-gray-300 hover:text-blue-700 transition-colors">
-                  +1 (234) 567-890
+                <a href="tel:+92 3119899940" className="text-gray-300 hover:text-blue-700 transition-colors">
+                  +92 3119899940
+                </a>
+              </li>
+              <li className="flex items-center">
+                <Phone className="w-5 h-5 mr-3 text-blue-600" />
+                <a href="tel:+92 3319899940" className="text-gray-300 hover:text-blue-700 transition-colors">
+                  +92 3319899940
                 </a>
               </li>
               <li className="flex items-center">
                 <Mail className="w-5 h-5 mr-3 text-blue-600" />
-                <a href="mailto:support@mlmpro.com" className="text-gray-300 hover:text-blue-700 transition-colors">
-                  support@mlmpro.com
+                <a href="mailto:contact@boxsurprise.pk" className="text-gray-300 hover:text-blue-700 transition-colors">
+                contact@boxsurprise.pk
                 </a>
               </li>
             </ul>

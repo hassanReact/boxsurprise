@@ -35,6 +35,13 @@ const SignUpForm = () => {
 
     setIsLoading(true);
     try {
+
+      const timestamp = Date.now().toString().slice(-5);
+        const { firstName, lastName } = data;
+        const namePart = `${firstName}${lastName}`.replace(/\s+/g, "").toLowerCase().slice(0, 5);
+        const phonePart = data.phone.slice(-4);
+        const generatedReferralId = `${namePart}${phonePart}${timestamp}`;
+
       const response = await fetch( inviteSignUp , {
         method: 'POST',
         credentials: 'include',
@@ -47,7 +54,7 @@ const SignUpForm = () => {
           email: data.email,
           password: data.password,
           phone: data.phone,
-          referralId: data.referralId,
+          referralId: generatedReferralId,
         }),
       });
 

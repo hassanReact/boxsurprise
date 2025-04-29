@@ -23,6 +23,8 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
   const location = useLocation();
   const user = useAppSelector((state) => state.auth.user);
+  const isAdmin = useAppSelector((state) => state.auth.isAdmin); // Get isAdmin from Redux
+  const userAdminRole = isAdmin ? "admin" : "user";  // Set the user role based on isAdmin state
   // const isActive = (path: string) => location.pathname === path;
   // const logout = useLogout();
 
@@ -85,6 +87,11 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     { icon: <Users size={20} />, label: "Users", path: "/users" },
     { icon: <BarChart size={20} />, label: "Reports", path: "/reports" },
     {
+      icon: <DollarSign size={20} />,
+      label: "Earnings Confirmation",
+      path: "/dashboard/earningsconfirmation",
+    },
+    {
       icon: <CreditCard size={20} />,
       label: "Withdrawals",
       path: "/withdrawals",
@@ -92,7 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     { icon: <Settings size={20} />, label: "Settings", path: "/settings" },
   ];
 
-  const navItems = userRole === "admin" ? adminNavItems : userNavItems;
+  const navItems = userAdminRole === "admin" ? adminNavItems : userNavItems;
 
   return (
     <>

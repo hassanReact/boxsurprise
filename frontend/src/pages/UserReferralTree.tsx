@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, User, RefreshCw } from 'lucide-react';
 import InviteButton from '../components/InviteButton';
 import InviteModal from '../components/InviteModel'; // Fixed typo in import
-import { useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { setDirectReferrals } from '../features/auth/authSlice'; // Import the missing action
 
 interface ReferralNode {
   id: number;
@@ -54,18 +55,19 @@ const ReferralTree: React.FC = () => {
   const [viewMode, setViewMode] = useState<'tree' | 'list'>('tree');
   const [isMobile, setIsMobile] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const dispatch = useAppDispatch();
 
   // Add this debugging function to your component
   // Call this in useEffect after data is loaded
 useEffect(() => {
   const debugTreeData = () => {
-    console.log("Current tree data:", treeData);
-    console.log("Tree data children:", treeData.children);
+    // console.log("Current tree data:", treeData);
+    // console.log("Tree data children:", treeData.children);
     // Check if children exist and have proper structure
     if (treeData.children && treeData.children.length > 0) {
-      console.log("First child:", treeData.children[0]);
+      // console.log("First child:", treeData.children[0]);
     }
-    console.log("Expanded nodes:", expandedNodes);
+    // console.log("Expanded nodes:", expandedNodes);
   };
 
   if (!isLoading && !error) {
@@ -131,6 +133,15 @@ useEffect(() => {
       
       const responseData = await response.json();
       console.log("API response:", responseData);
+      console.log("DirectReferrals:", responseData.data.directReferrals);
+      const directReferralsArray = responseData.data.directReferrals;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const format = directReferralsArray.map((item: any) => item.referralId).join(', ');
+
+      // console.log("Formatted DirectReferrals:", format);
+      const updateReferrals = () => {
+        dispatch(setDirectReferrals(format));
+      };
       
       // Ensure the data follows our expected structure
       if (!responseData || typeof responseData !== 'object') {
@@ -164,12 +175,16 @@ useEffect(() => {
               children: [] // Initialize empty children array
             };
           });
+          const referralIds = responseData.data.directReferrals.map((ref: { referralId: string }) => ({
+            referralId: ref.referralId,
+          })); // adjust as per your structure
+      updateReferrals(referralIds);
         } else{
           // Ensure children array is empty when no referrals exist
   transformedData.children = [];
         }
 
-        console.log("Transformed data:", transformedData);
+        // console.log("Transformed data:", transformedData);
         
         // Set the transformed data to state
         setTreeData(transformedData);

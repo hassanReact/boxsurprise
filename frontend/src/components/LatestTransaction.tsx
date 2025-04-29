@@ -19,7 +19,7 @@ const LatestTransactions: React.FC = () => {
         id: '1',
         type: 'deposit',
         amount: 1500,
-        currency: 'USD',
+        currency: 'PKR',
         user: {
           name: 'Sarah Johnson',
           avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop'
@@ -31,7 +31,7 @@ const LatestTransactions: React.FC = () => {
         id: '2',
         type: 'withdrawal',
         amount: 850,
-        currency: 'USD',
+        currency: 'PKR',
         user: {
           name: 'Michael Chen',
           avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop'
@@ -43,7 +43,7 @@ const LatestTransactions: React.FC = () => {
         id: '3',
         type: 'deposit',
         amount: 2000,
-        currency: 'USD',
+        currency: 'PKR',
         user: {
           name: 'Emma Wilson',
           avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop'
@@ -55,7 +55,7 @@ const LatestTransactions: React.FC = () => {
         id: '4',
         type: 'withdrawal',
         amount: 1200,
-        currency: 'USD',
+        currency: 'PKR',
         user: {
           name: 'David Kim',
           avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop'
@@ -67,7 +67,7 @@ const LatestTransactions: React.FC = () => {
         id: '5',
         type: 'deposit',
         amount: 3000,
-        currency: 'USD',
+        currency: 'PKR',
         user: {
           name: 'Lisa Anderson',
           avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop'

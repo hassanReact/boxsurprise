@@ -14,6 +14,7 @@ export const getReferralTree = async (userIds: any[], depth: number): Promise<an
           _id: user?._id,
           name: user?.name,
           email: user?.email,
+          referralId: user?.referralId,
           directReferrals: childReferrals,
         };
       })

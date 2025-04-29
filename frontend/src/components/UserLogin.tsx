@@ -54,13 +54,14 @@ const SignInForm = () => {
       localStorage.setItem("user", JSON.stringify(user))
 
       dispatch(setUser({
-        id: responseData.user.id,
-        name: responseData.user.name,
-        email: responseData.user.email,
-        phoneNumber: responseData.user.phone,
-        referral_id: responseData.user.referralId || null,
-        createdAt: responseData.user.createdAt,
-      }));
+              id: responseData.user.id,
+              name: responseData.user.name,
+              email: responseData.user.email,
+              phoneNumber: responseData.user.phone,
+              referral_id: responseData.user.referralId || null,
+              createdAt: responseData.user.createdAt,
+              partOfReferral: responseData.user.partOfReferral || false, // Add this property
+            }));
 
       navigate("/dashboard");
     } catch (err: unknown) {

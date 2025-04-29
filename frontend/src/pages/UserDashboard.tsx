@@ -1,7 +1,23 @@
-import React from "react";
-import { Users, TrendingUp, Award, CreditCard } from "lucide-react";
+import React, { useEffect } from "react";
+import { Users, TrendingUp, Award, CreditCard, MessageCircle } from "lucide-react";
 
 const Dashboard: React.FC = () => {
+  const [showReferralModal, setShowReferralModal] = React.useState(false);
+
+  const whatsappNumber = '1234567890';
+  const whatsappLink = `https://wa.me/${whatsappNumber}`;
+
+  useEffect(() => {
+    setShowReferralModal(true);
+  }, []);
+
+  const handleWhatsAppClick = () => {
+    // Close the modal only after WhatsApp is opened
+    setShowReferralModal(false);
+    
+    // You could add tracking or analytics here if needed
+  };
+
   const statsData = [
     {
       title: "Total Referrals",
@@ -55,6 +71,50 @@ const Dashboard: React.FC = () => {
           Dashboard
         </h1>
       </div>
+
+      {/* Modern Popup Modal with Beautiful Blur Effect */}
+      {showReferralModal && (
+        <div className="fixed min-h-screen inset-0 z-50 flex items-center justify-center overflow-hidden">
+          {/* Enhanced backdrop with soft blur effect */}
+          <div className="absolute inset-0 backdrop-blur-md bg-white/30"></div>
+          
+          {/* Modern Card Design */}
+          <div className="relative z-10 bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-fadeIn">
+            {/* Curved decorative top */}
+            <div className="h-4 bg-gradient-to-r from-green-400 to-green-600"></div>
+            
+            <div className="p-8">
+              {/* Circular WhatsApp Icon with floating effect */}
+              <div className="flex justify-center mb-6">
+                <div className="h-20 w-20 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
+                  <MessageCircle className="h-10 w-10 text-white" />
+                </div>
+              </div>
+              
+              <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+                Not Part of Our Referral Program?
+              </h2>
+              
+              <p className="text-gray-600 text-center mb-8">
+                Join our exclusive referral program and unlock special benefits by connecting with us on WhatsApp.
+              </p>
+              
+              <div className="flex justify-center">
+                <a 
+                  href={whatsappLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={handleWhatsAppClick}
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium py-4 px-8 rounded-full transition duration-300 shadow-lg hover:shadow-xl hover:from-green-600 hover:to-green-700 transform hover:-translate-y-1"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  Connect on WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -17,7 +17,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
   const navigate = useNavigate();
 
   const user = useAppSelector((state) => state.auth.user);
-  console.log(user?.name); // Assuming the user data is in auth.user
+  // console.log(user?.name); // Assuming the user data is in auth.user
   const userFirstName = user?.name;
 
   useEffect(() => {

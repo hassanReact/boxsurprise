@@ -5,9 +5,10 @@ const EasypaisaWithdrawalForm = () => {
   const [amount, setAmount] = useState("");
   const [phone, setPhone] = useState("");
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleWithdraw = async (e : any) => {
     e.preventDefault();
-    const response = await fetch("/api/easypaisa/withdraw", {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URI}/api/easypaisa/withdraw/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ amount, phone }),
