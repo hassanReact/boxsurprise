@@ -227,7 +227,7 @@ const UserPosts: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 my-8">
+    <div className="space-y-6 my-8 p-0">
       {/* Create Post */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-6">
