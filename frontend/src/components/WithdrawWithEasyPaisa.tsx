@@ -1,25 +1,50 @@
-// EasypaisaWithdrawalForm.jsx
+// EasypaisaWithdrawalForm.tsx
 import { useState } from "react";
 
-const EasypaisaWithdrawalForm = () => {
+interface EasypaisaWithdrawalFormProps {
+  userId: string | undefined;
+}
+
+const EasypaisaWithdrawalForm: React.FC<EasypaisaWithdrawalFormProps> = ({ userId }) => {
   const [amount, setAmount] = useState("");
   const [phone, setPhone] = useState("");
+  const [whatsappLink, setWhatsappLink] = useState("");
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleWithdraw = async (e : any) => {
+  const handleWithdraw = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const response = await fetch(`${import.meta.env.VITE_SERVER_URI}/api/easypaisa/withdraw/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount, phone }),
-    });
+
+    if (!userId) {
+      alert("User ID is missing.");
+      return;
+    }
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URI}/api/easypaisa/withdraw/${userId}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, amount, phone }),
+      }
+    );
 
     const data = await response.json();
-    alert(data.message);
+
+    if (response.ok) {
+      setAmount("");
+      setPhone("");
+      if (data?.whatsappLink) {
+        setWhatsappLink(data.whatsappLink);
+      }
+    } else {
+      alert(data.message || "Something went wrong");
+    }
   };
 
   return (
-    <form onSubmit={handleWithdraw} className="p-4 rounded shadow bg-white max-w-sm mx-auto">
+    <form
+      onSubmit={handleWithdraw}
+      className="mt-16 p-4 rounded shadow bg-white max-w-sm mx-auto"
+    >
       <h2 className="text-xl mb-2 font-bold">Withdraw with Easypaisa</h2>
       <input
         type="text"
@@ -44,6 +69,17 @@ const EasypaisaWithdrawalForm = () => {
       >
         Withdraw
       </button>
+
+      {whatsappLink && (
+        <a
+          href={whatsappLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block mt-4 text-green-600 font-bold"
+        >
+          Contact Admin on WhatsApp
+        </a>
+      )}
     </form>
   );
 };

@@ -1,5 +1,6 @@
 // import React, { useState } from 'react';
 // import { Wallet, AlertCircle } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import EasypaisaWithdrawalForm from '../components/WithdrawWithEasyPaisa';
 
 // interface WithdrawalRequest {
@@ -11,6 +12,7 @@ import EasypaisaWithdrawalForm from '../components/WithdrawWithEasyPaisa';
 // }
 
 const WithdrawRequests: React.FC = () => {
+  const { id } = useParams();
   // const [amount, setAmount] = useState('');
   // const [paymentMethod, setPaymentMethod] = useState('bank');
 
@@ -185,7 +187,7 @@ const WithdrawRequests: React.FC = () => {
     //   </div>
     // </div>
     <>
-      <EasypaisaWithdrawalForm />
+      <EasypaisaWithdrawalForm userId={id} />
     </>
   );
 };

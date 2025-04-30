@@ -29,6 +29,7 @@ import { setAdmin, setUser } from "./features/auth/authSlice";
 import ForgotPassword from "./components/ForgetPassword";
 import ResetPassword from "./components/ResetPassword";
 import EarningConfirmation from "./pages/EarningConfirmation";
+import WithdrawRequests from "./pages/UserWithdrawls";
 
 // Create a wrapper component to use Router hooks
 const AppContent: React.FC = () => {
@@ -105,6 +106,7 @@ const AppContent: React.FC = () => {
               <Route path="referral-tree" element={<ReferralTree />} />
               <Route path="earnings" element={<Earnings />} />
               <Route path="withdrawals" element={<Withdrawals />} />
+              <Route path="easypaisa/withdraw/:id" element={<WithdrawRequests />} />
               <Route path="posts" element={<Posts />} />
               <Route path="settings" element={<Settings />} />
               <Route path="profile" element={<UserProfile />} />

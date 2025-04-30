@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { setUser } from '../features/auth/authSlice';
 
 const SignInForm = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const user = useAppSelector(state=> state.auth.user);
 
   const {
     register,
@@ -17,6 +18,13 @@ const SignInForm = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    if (user && !user.partOfReferral) {
+      setShowPopup(true);
+    }
+  }, [user]);
 
   const env = import.meta.env.VITE_SERVER_URI;
 
@@ -54,16 +62,20 @@ const SignInForm = () => {
       localStorage.setItem("user", JSON.stringify(user))
 
       dispatch(setUser({
-              id: responseData.user.id,
-              name: responseData.user.name,
-              email: responseData.user.email,
-              phoneNumber: responseData.user.phone,
-              referral_id: responseData.user.referralId || null,
-              createdAt: responseData.user.createdAt,
-              partOfReferral: responseData.user.partOfReferral || false, // Add this property
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              phoneNumber: user.phone,
+              referral_id: user.referralId || null,
+              createdAt: user.createdAt,
+              partOfReferral: user.partOfReferral || false, // Add this property
             }));
 
-      navigate("/dashboard");
+            if (user.partOfReferral) {
+              navigate("/dashboard");
+            } else {
+              setShowPopup(true);  // Ye popup dikha dega jisme contact link hoga
+            }
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error(err.message);
@@ -113,6 +125,29 @@ const SignInForm = () => {
   }
 
   return (
+    <>
+
+{showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-xl text-center">
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">Not part of referral</h2>
+            <p className="text-gray-600 mb-4">Please contact us to join via referral.</p>
+            <a
+              href="/contact"
+              className="inline-block bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
+            >
+              Contact Us
+            </a>
+            <button
+              onClick={() => setShowPopup(false)}
+              className="block mt-3 text-sm text-gray-500 underline"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
     <div className="min-h-screen bg-gradient-to-tr from-blue-500 to-purple-600 py-12 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all hover:scale-[1.01]">
@@ -257,6 +292,7 @@ const SignInForm = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
